@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just:*)",
+      "Bash(uv run:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv add:*)",
+      "Bash(openspec:*)",
+      "Bash(ruff:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(unzip:*)",
+      "Bash(head:*)",
+      "Bash(wc:*)",
+      "WebFetch(domain:dadosabertos.tse.jus.br)",
+      "WebFetch(domain:cdn.tse.jus.br)",
+      "WebFetch(domain:dadosabertos.camara.leg.br)",
+      "WebFetch(domain:www.camara.leg.br)",
+      "WebFetch(domain:github.com)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(rm -rf:*)"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+# Configuração do Colinha do Voto
+# Tudo que muda de uma eleição para outra fica aqui, não no código.
+
+[projeto]
+nome = "Colinha do Voto"
+subtitulo = "Conheça quem você vai votar antes de ir à urna"
+url_base = "https://colinha.statcode.com.br"   # TODO: confirmar subdomínio e domínio da StatCode
+email_contato = "contato@statcode.com.br"      # TODO: confirmar (usado no "Encontrou um erro?")
+url_statcode = "https://statcode.com.br"       # TODO: confirmar
+repositorio = ""                               # TODO: link do código aberto, se for público
+
+[eleicao]
+ano = 2026
+data_primeiro_turno = "2026-10-04"
+# Anos usados para montar a trajetória (gerais e municipais).
+anos_historico = [2024, 2022, 2020, 2018, 2016, 2014]
+# Grafia deve bater com DS_CARGO do TSE; conferir no arquivo e ajustar.
+cargos = ["PRESIDENTE", "GOVERNADOR", "SENADOR", "DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"]
+# Vagas na colinha por cargo (2026 elege dois senadores por UF).
+vagas_colinha = { "DEPUTADO FEDERAL" = 1, "DEPUTADO ESTADUAL" = 1, "DEPUTADO DISTRITAL" = 1, "SENADOR" = 2, "GOVERNADOR" = 1, "PRESIDENTE" = 1 }
+
+[processamento]
+ufs = "todas"            # ou uma lista, ex.: ["RR", "SP"]
+uf_desenvolvimento = "RR"
+
+[camara]
+api_base = "https://dadosabertos.camara.leg.br/api/v2"
+legislaturas = [55, 56, 57]              # 2015 a 2027
+tipos_proposicao = ["PL", "PLP", "PEC"]
+max_requisicoes_por_segundo = 3

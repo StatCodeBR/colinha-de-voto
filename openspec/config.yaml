@@ -1,0 +1,39 @@
+schema: spec-driven
+
+context: |
+  Projeto: Colinha do Voto, ferramenta web gratuita e apartidária que ajuda eleitores
+  brasileiros a conhecer candidatos antes de votar, usando apenas dados abertos oficiais
+  (TSE e Câmara dos Deputados). Feita pela StatCode e publicada em subdomínio da StatCode.
+
+  Público: eleitores comuns, maioria no celular, chegando por links no WhatsApp.
+  Prazo: 1º turno em 4/out/2026; MVP (changes 01 e 02) no ar até 1/out/2026.
+  A estrutura deve ser reaproveitável nas eleições municipais de 2028 e gerais de 2030.
+
+  Ambiente: flake.nix na raiz (nix develop) fornece Python, uv, just, ruff e Node;
+  todo comando recorrente vira recipe no justfile.
+  Stack: Python 3.12+ com uv; pandas + pyarrow para processamento; httpx para downloads;
+  Jinja2 para gerar o site estático; JavaScript puro (sem framework) para busca, filtros
+  e colinha; CSS próprio com variáveis. Sem backend, sem banco de dados.
+  Saída: site/dist/ (arquivos estáticos). Testes: pytest com fixtures sintéticas.
+
+  Princípios inegociáveis (detalhes no CLAUDE.md): neutralidade (mesmo formato para
+  todos, sem notas, rankings ou adjetivos); fonte e data em todo dado exibido; nunca
+  exibir CPF, título de eleitor ou e-mail; colinha só no navegador do eleitor;
+  honestidade sobre cobertura e limitações dos dados.
+
+  Idioma: interface e artefatos do OpenSpec em português do Brasil.
+
+rules:
+  proposal:
+    - Manter os títulos de seção do template em inglês (Why, What Changes, Capabilities, Impact) e escrever o conteúdo em português
+    - Dizer explicitamente o que fica fora do escopo e por quê
+  specs:
+    - Escrever em português, mantendo em inglês as palavras-chave que o validador reconhece (SHALL, MUST, GIVEN, WHEN, THEN, AND)
+    - Todo requisito que exibe dado ao eleitor precisa de um cenário para dado ausente ou incerto
+  design:
+    - Registrar cada decisão com as alternativas consideradas e o motivo da escolha
+    - Apontar riscos de erro de dado e como o eleitor é protegido deles
+  tasks:
+    - Tarefas pequenas e verificáveis, na ordem de execução
+    - Marcar com (opcional) o que pode ficar para depois sem quebrar o MVP
+    - Incluir tarefa de teste para cada regra de negócio de dados

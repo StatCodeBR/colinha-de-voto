@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Dados (grandes ou sensíveis) — data/manual/ fica no git
+data/raw/
+data/interim/
+data/processed/
+
+# Site gerado
+site/dist/
+
+# Ambiente (Nix, direnv, OpenSpec local)
+.direnv/
+.npm-global/
+result
+
+# Segredos e sistema
+.env
+.env.*
+.DS_Store
