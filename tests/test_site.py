@@ -199,3 +199,82 @@ def test_csp_do_nginx_cobre_o_script_inline():
     assert len(inline) == 1
     digest = base64.b64encode(hashlib.sha256(inline[0].encode()).digest()).decode()
     assert f"'sha256-{digest}'" in (raiz / "deploy" / "nginx.conf").read_text()
+
+
+# --- Preposição da UF e link "Voltar" (change add-botao-voltar) --------------------------
+
+
+@pytest.mark.parametrize(
+    ("uf", "em", "de"),
+    [
+        ("SP", "em São Paulo", "de São Paulo"),
+        ("RJ", "no Rio de Janeiro", "do Rio de Janeiro"),
+        ("BA", "na Bahia", "da Bahia"),
+        ("DF", "no Distrito Federal", "do Distrito Federal"),
+        ("BR", "no Brasil", "do Brasil"),
+    ],
+)
+def test_preposicao_da_uf(uf, em, de):
+    assert textos.em_uf(uf) == em
+    assert textos.de_uf(uf) == de
+
+
+def test_toda_uf_tem_artigo():
+    assert set(textos.ARTIGO_UF) == set(textos.NOMES_UF)
+
+
+@pytest.mark.parametrize(
+    ("args", "href", "texto"),
+    [
+        (("uf", "RR"), "/", "Voltar para a escolha de estado"),
+        (("lista", "RR", "DEPUTADO FEDERAL"), "/rr/", "Voltar para Roraima"),
+        (("lista", "BA", "SENADOR"), "/ba/", "Voltar para a Bahia"),
+        (("lista", "RJ", "SENADOR"), "/rj/", "Voltar para o Rio de Janeiro"),
+        (
+            ("candidato", "RR", "DEPUTADO FEDERAL"),
+            "/rr/deputado-federal/",
+            "Voltar para deputado federal em Roraima",
+        ),
+        (
+            ("candidato", "RJ", "SENADOR"),
+            "/rj/senador/",
+            "Voltar para senador no Rio de Janeiro",
+        ),
+        (("candidato", "BR", "PRESIDENTE"), "/", "Voltar para a escolha de estado"),
+        (("colinha",), "/", "Voltar para a escolha de estado"),
+        (("metodologia",), "/", "Voltar para a escolha de estado"),
+    ],
+)
+def test_destino_do_voltar(args, href, texto):
+    assert textos.voltar(*args) == {"href": href, "texto": texto}
+
+
+def test_pagina_sem_destino_falha():
+    with pytest.raises(textos.ErroTexto):
+        textos.voltar("inicio")
+
+
+def _voltar(html: str) -> list[tuple[str, str]]:
+    return re.findall(
+        r'<p class="voltar"><a href="([^"]+)" data-voltar[^>]*>'
+        r'<span aria-hidden="true">← </span>([^<]+)</a>',
+        html,
+    )
+
+
+def test_toda_subpagina_tem_um_link_voltar(dist: Path):
+    esperado = {
+        "rr/index.html": ("/", "Voltar para a escolha de estado"),
+        "rr/deputado-federal/index.html": ("/rr/", "Voltar para Roraima"),
+        "rr/presidente/index.html": ("/rr/", "Voltar para Roraima"),
+        "rr/1111/index.html": ("/rr/deputado-federal/", "Voltar para deputado federal em Roraima"),
+        "br/10/index.html": ("/", "Voltar para a escolha de estado"),
+        "colinha/index.html": ("/", "Voltar para a escolha de estado"),
+        "metodologia/index.html": ("/", "Voltar para a escolha de estado"),
+    }
+    for rota, destino in esperado.items():
+        assert _voltar((dist / rota).read_text()) == [destino], rota
+    assert "data-voltar-presidente" in (dist / "br" / "10" / "index.html").read_text()
+    assert "data-voltar-presidente" not in (dist / "rr" / "1111" / "index.html").read_text()
+    for rota in ["index.html", "404.html"]:
+        assert "data-voltar" not in (dist / rota).read_text(), rota

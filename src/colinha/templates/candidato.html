@@ -3,7 +3,7 @@
 {% block titulo %}{{ c.titulo }} · {{ projeto.nome }}{% endblock %}
 {% block descricao %}{{ c.descricao }}{% endblock %}
 {% block conteudo %}
-{% if c.uf != "BR" %}<div data-uf-atual="{{ c.uf }}" data-uf-nome="{{ c.uf_nome }}" hidden></div>{% endif %}
+{% if c.uf != "BR" %}<div data-uf-atual="{{ c.uf }}" data-uf-nome="{{ c.uf_nome }}" data-uf-em="{{ c.uf_em }}" hidden></div>{% endif %}
 <section class="identificacao" aria-labelledby="nome">
   <p class="cargo">{{ c.cabecalho }}</p>
   <h1 id="nome">{{ c.nome_urna }}</h1>

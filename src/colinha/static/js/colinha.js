@@ -72,7 +72,11 @@
 
   var marcaUf = document.querySelector("[data-uf-atual]");
   if (marcaUf) {
-    gravar(CHAVE_UF, { sigla: marcaUf.dataset.ufAtual, nome: marcaUf.dataset.ufNome });
+    gravar(CHAVE_UF, {
+      sigla: marcaUf.dataset.ufAtual,
+      nome: marcaUf.dataset.ufNome,
+      em: marcaUf.dataset.ufEm,
+    });
   }
 
   var atalho = document.getElementById("atalho-uf");
@@ -80,9 +84,18 @@
   if (atalho && ultima && ultima.sigla) {
     var link = document.createElement("a");
     link.href = "/" + ultima.sigla.toLowerCase() + "/";
-    link.textContent = "Continuar em " + ultima.nome;
+    // "em" ausente: valor guardado por uma versão anterior do site.
+    link.textContent = "Continuar " + (ultima.em || "em " + ultima.nome);
     atalho.appendChild(link);
     atalho.hidden = false;
+  }
+
+  // Páginas de presidente servem a todas as UFs: o "Voltar" leva à lista de presidente da
+  // última UF visitada. Sem UF guardada, fica o destino do HTML (escolha de estado).
+  var voltarPresidente = document.querySelector("[data-voltar-presidente]");
+  if (voltarPresidente && ultima && ultima.sigla) {
+    voltarPresidente.href = "/" + ultima.sigla.toLowerCase() + "/presidente/";
+    voltarPresidente.lastChild.textContent = "Voltar para presidente";
   }
 
   // --- Botões "Adicionar à colinha" ----------------------------------------------------
@@ -184,7 +197,7 @@
   }
   if (semArmazenamento) avisarSemArmazenamento();
 
-  var titulo = el("h2", null, "Colinha de " + config.nomesUf[uf]);
+  var titulo = el("h2", null, "Colinha " + config.deUf[uf]);
   raiz.appendChild(titulo);
   var trocar = el("a", null, "Trocar de estado");
   trocar.href = "?uf=";
@@ -228,7 +241,7 @@
     window.print();
   });
   document.getElementById("apagar").addEventListener("click", function () {
-    if (!window.confirm("Apagar todas as escolhas da colinha de " + config.nomesUf[uf] + ", inclusive a de presidente?")) return;
+    if (!window.confirm("Apagar todas as escolhas da colinha " + config.deUf[uf] + ", inclusive a de presidente?")) return;
     remover(PREFIXO + uf);
     remover(PREFIXO + "BR");
     location.reload();

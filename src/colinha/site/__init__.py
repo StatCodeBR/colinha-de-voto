@@ -103,14 +103,15 @@ def pagina_candidato(d: dict[str, Any], cfg: Config) -> dict[str, Any]:
 
     redes = [r for r in (textos.link_rede(u) for u in d["redes_sociais"]) if r]
     federacao = textos.federacao(d["federacao"])
-    titulo = f"{d['nome_urna']} {d['numero']}: {cargo_txt.lower()} em {uf_nome}"
+    titulo = f"{d['nome_urna']} {d['numero']}: {cargo_txt.lower()} {textos.em_uf(d['uf'])}"
     candidata = textos.flexao(g, "candidato", "candidata", "candidato(a)")
-    local_eleicao = "no Brasil" if d["uf"] == "BR" else f"em {uf_nome}"
+    local_eleicao = textos.em_uf(d["uf"])
     return {
         "id": d["id"],
         "url": f"/{d['id']}/",
         "uf": d["uf"],
         "uf_nome": uf_nome,
+        "uf_em": textos.em_uf(d["uf"]),
         "chave_colinha": d["uf"],
         "numero": d["numero"],
         "cargo": d["cargo"],
@@ -156,6 +157,15 @@ def pagina_candidato(d: dict[str, Any], cfg: Config) -> dict[str, Any]:
 def janela(d: dict[str, Any]) -> str:
     cob = d["historico"]["cobertura"]
     return f"de {cob['inicio']} a {cob['fim']}"
+
+
+def voltar_candidato(d: dict[str, Any]) -> dict[str, Any]:
+    """Link "Voltar" da página do candidato. Presidente leva a marca para o JavaScript
+    trocar o destino pela lista de presidente da última UF visitada."""
+    destino: dict[str, Any] = textos.voltar("candidato", d["uf"], d["cargo"])
+    if d["uf"] == "BR":
+        destino["presidente"] = True
+    return destino
 
 
 def linha_lista(d: dict[str, Any], cfg: Config) -> dict[str, Any]:
@@ -249,14 +259,18 @@ def gerar(cfg: Config, log=print) -> None:
 
     presidentes = detalhes("BR")
     for d in presidentes:
-        pagina(f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg))
+        pagina(
+            f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg), voltar=voltar_candidato(d)
+        )
 
     ufs = [uf for uf in UFS if (proc / uf / "indice.json").exists()]
     cargos_por_uf: dict[str, list[str]] = {}
     for uf in ufs:
         todos = detalhes(uf)
         for d in todos:
-            pagina(f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg))
+            pagina(
+            f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg), voltar=voltar_candidato(d)
+        )
         presentes = {d["cargo"] for d in todos} | {"PRESIDENTE"}
         cargos = [c for c in cfg.eleicao.ordem_urna if c in presentes]
         cargos_por_uf[uf] = cargos
@@ -271,6 +285,8 @@ def gerar(cfg: Config, log=print) -> None:
                 "lista.html",
                 uf=uf,
                 uf_nome=textos.NOMES_UF[uf],
+                uf_em=textos.em_uf(uf),
+                voltar=textos.voltar("lista", uf, cargo),
                 cargo=cargo,
                 cargo_generico=textos.CARGO_GENERICO[cargo],
                 ano_mandato=ano_mandato(cfg, cargo),
@@ -287,7 +303,16 @@ def gerar(cfg: Config, log=print) -> None:
                     "vagas": cfg.eleicao.vagas_colinha[cargo],
                 }
             )
-        pagina(f"/{uf.lower()}/", "uf.html", uf=uf, uf_nome=textos.NOMES_UF[uf], cargos=resumo_cargos)
+        pagina(
+            f"/{uf.lower()}/",
+            "uf.html",
+            uf=uf,
+            uf_nome=textos.NOMES_UF[uf],
+            uf_em=textos.em_uf(uf),
+            uf_de=textos.de_uf(uf),
+            cargos=resumo_cargos,
+            voltar=textos.voltar("uf", uf),
+        )
         log(f"site {uf}: {len(todos)} candidaturas")
 
     config_colinha = {
@@ -296,13 +321,16 @@ def gerar(cfg: Config, log=print) -> None:
         "rotulos": {c: textos.CARGOS[c][0] for c in cfg.eleicao.ordem_urna},
         "cargosPorUf": cargos_por_uf,
         "nomesUf": {uf: textos.NOMES_UF[uf] for uf in ufs},
+        "deUf": {uf: textos.de_uf(uf) for uf in ufs},
     }
     pagina(
         "/",
         "inicio.html",
         ufs=[(uf, textos.NOMES_UF[uf], uf in ufs) for uf in UFS],
     )
-    pagina("/colinha/", "colinha.html", config_colinha=config_colinha)
+    pagina(
+        "/colinha/", "colinha.html", config_colinha=config_colinha, voltar=textos.voltar("colinha")
+    )
     pagina(
         "/metodologia/",
         "metodologia.html",
@@ -313,6 +341,7 @@ def gerar(cfg: Config, log=print) -> None:
         ],
         cobertura=cfg.eleicao.anos_historico,
         resumo=_ler(proc / "resumo.json"),
+        voltar=textos.voltar("metodologia"),
     )
     _gravar(dist / "404.html", env.get_template("404.html").render(url_canonica=f"{base}/"))
     _gravar(dist / "robots.txt", f"User-agent: *\nAllow: /\nSitemap: {base}/sitemap.xml\n")

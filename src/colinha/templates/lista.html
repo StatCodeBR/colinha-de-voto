@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% from "_macros.html" import numero, botao_colinha %}
-{% block titulo %}Candidaturas a {{ cargo_generico }} em {{ uf_nome }} · {{ projeto.nome }}{% endblock %}
-{% block descricao %}{{ aptas }} candidaturas aptas a {{ cargo_generico }} em {{ uf_nome }} na eleição de {{ ano }}, em ordem alfabética, com trajetória eleitoral.{% endblock %}
+{% block titulo %}Candidaturas a {{ cargo_generico }} {{ uf_em }} · {{ projeto.nome }}{% endblock %}
+{% block descricao %}{{ aptas }} candidaturas aptas a {{ cargo_generico }} {{ uf_em }} na eleição de {{ ano }}, em ordem alfabética, com trajetória eleitoral.{% endblock %}
 {% block conteudo %}
-<div data-uf-atual="{{ uf }}" data-uf-nome="{{ uf_nome }}" hidden></div>
-<p class="migalha"><a href="/{{ uf|lower }}/">{{ uf_nome }}</a></p>
-<h1>Candidaturas a {{ cargo_generico }}{% if cargo != "PRESIDENTE" %} em {{ uf_nome }}{% endif %}</h1>
+<div data-uf-atual="{{ uf }}" data-uf-nome="{{ uf_nome }}" data-uf-em="{{ uf_em }}" hidden></div>
+<h1>Candidaturas a {{ cargo_generico }}{% if cargo != "PRESIDENTE" %} {{ uf_em }}{% endif %}</h1>
 <p class="intro">Em ordem alfabética pelo nome de urna. Toque no nome para ver a trajetória e os dados declarados.</p>
 
 <form class="filtros" id="filtros" hidden>

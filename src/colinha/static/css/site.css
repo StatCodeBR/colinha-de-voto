@@ -104,8 +104,7 @@ a {
 }
 
 .suave,
-.fonte,
-.migalha {
+.fonte {
   color: var(--texto-suave);
 }
 
@@ -154,6 +153,18 @@ a {
   padding-bottom: 2rem;
   border-top: 1px solid var(--cinza-urna);
   font-size: 0.95rem;
+}
+
+/* Link "Voltar" das subpáginas: discreto, para não competir com "Adicionar à colinha" */
+
+.voltar {
+  margin: 0.5rem 0 0;
+}
+
+.voltar a {
+  display: inline-block;
+  padding: 0.6rem 0; /* com a linha de 1.5, dá mais de 44 px de área de toque */
+  font-weight: 700;
 }
 
 /* Número em caixinhas, como na tela da urna */
@@ -488,6 +499,7 @@ button,
 
   .topo,
   .rodape,
+  .voltar,
   h1,
   .trocar-uf,
   .vaga-vazia a,
