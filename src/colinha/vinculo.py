@@ -1,5 +1,5 @@
 """Vínculo entre candidaturas do ano da eleição e de anos anteriores, e classificação do
-histórico. Regras em openspec/changes/01-add-pipeline-tse/design.md (D4 a D6)."""
+histórico. Regras em openspec/changes/archive/2026-09-28-01-add-pipeline-tse/design.md (D4 a D6)."""
 
 from __future__ import annotations
 
