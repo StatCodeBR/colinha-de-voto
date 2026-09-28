@@ -160,8 +160,9 @@ muda o contexto do build e força o download; o histórico do git registra cada
 publicação. Rollback: voltar `deploy/release.txt` para a tag anterior (commit e push) ou
 passar `RELEASE=<tag anterior>` como build arg no Dokploy e fazer o redeploy.
 
-Repositório privado: o download precisa de um token do GitHub com leitura, passado ao
-build como secret `github_token`. Público: nada a configurar. A URL do webhook fica em
+O repositório `StatCodeBR/colinha-de-voto` é público (decidido em 28/09/2026): o
+download da release não precisa de token. Se um dia ficar privado, o Dockerfile já aceita
+um token de leitura como build secret `github_token`. A URL do webhook fica em
 `.env`, fora do git.
 
 Alternativas consideradas:
@@ -200,7 +201,5 @@ imagem localmente) vem do sistema: o daemon não roda dentro do shell do Nix.
 
 ## Open Questions
 
-- O repositório `StatCodeBR/colinha-de-voto` vai ser público ou privado? Privado exige o
-  token de leitura como build secret no Dokploy (D9).
 - A StatCode quer alguma contagem de visitas? Se sim, qual ferramenta sem cookies?
 - Fotos entram no MVP? (Tarefa opcional; aumentam muito o reconhecimento do candidato.)

@@ -41,7 +41,7 @@
 
 ## 6. Publicação
 - [x] 6.1 `Dockerfile` e `nginx.conf` próprios servindo `site/dist/`: gzip para HTML, CSS, JS e JSON; cache longo para fontes e CSS, curto para HTML e `indice.json`; página 404 do site. Testar localmente com `docker run` (Docker vem do sistema; ver D9)
-- [ ] 6.2 (`just publicar`, `deploy/publicar.sh` e `Dockerfile` prontos e testados com API simulada; falta a equipe) Criar a aplicação no Dokploy (provider Git, `Dockerfile`, porta 80) com o domínio `colinha.statcode.com.br` e HTTPS; se o repositório for privado, cadastrar o secret `github_token`; `gh auth login` e `DOKPLOY_WEBHOOK` no `.env`; primeira publicação real
+- [ ] 6.2 (`just publicar`, `deploy/publicar.sh` e `Dockerfile` prontos e testados com API simulada; falta a equipe) Criar a aplicação no Dokploy (provider Git, `Dockerfile`, porta 80) com o domínio `colinha.statcode.com.br` e HTTPS; `gh auth login` e `DOKPLOY_WEBHOOK` no `.env`; primeira publicação real
 - [ ] 6.3 Testar no celular: link colado no WhatsApp mostra a prévia correta
 - [x] 6.4 Documentar no README o ciclo diário até a eleição (`just atualizar` e `just publicar`) e como voltar para a imagem anterior
 - [ ] 6.5 (opcional) Fotos: baixar as fotos de 2026, converter para WebP de 240px, exibir com texto alternativo e sem quebrar o orçamento de desempenho

@@ -103,9 +103,7 @@ Configuração, uma vez só:
 2. No Dokploy, crie a aplicação:
    - provider Git, repositório `StatCodeBR/colinha-de-voto`, branch `main`;
    - build type Dockerfile (`Dockerfile` na raiz), porta 80;
-   - domínio `colinha.statcode.com.br` com HTTPS;
-   - se o repositório for privado: build secret `github_token` com um token do GitHub só
-     de leitura (conteúdo do repositório).
+   - domínio `colinha.statcode.com.br` com HTTPS.
 3. Crie o `.env` na raiz (fica fora do git) com a URL do webhook de deploy da aplicação:
    ```bash
    DOKPLOY_WEBHOOK=<URL do webhook>
