@@ -56,10 +56,24 @@ considerados; ficam como alternativa se o processamento dos anos municipais fica
 
 | Nível | Regra | Publicado? |
 |---|---|---|
-| confirmado | CPF válido e igual dos dois lados | sim |
-| confirmado | nome normalizado + data de nascimento iguais, e a chave é única nos dois lados | sim |
-| provável | nome normalizado igual na mesma UF, sem data de nascimento para comparar, com idade compatível (±1 ano) | não, vai para revisão |
-| ambíguo | a chave aponta para mais de uma pessoa em algum dos lados | não, vai para revisão |
+| confirmado | CPF válido e igual dos dois lados, e nome (ao menos uma palavra em comum, fora "da", "de", "do", "dos", "das", "e") ou data de nascimento iguais | sim |
+| ambíguo | CPF igual, mas nome e nascimento divergem (provável CPF digitado errado) | não, vai para revisão |
+| confirmado | algum lado sem CPF válido; nome normalizado + data de nascimento iguais, e a chave é única nos dois lados | sim |
+| provável | algum lado sem CPF válido; nome normalizado igual na mesma UF, sem data de nascimento em algum lado | não, vai para revisão |
+| ambíguo | a chave nome + nascimento aparece mais de uma vez em algum dos lados (no ano da eleição ou naquele ano anterior) | não, vai para revisão |
+
+Se os dois lados têm CPF válido e diferente, não há vínculo, mesmo com nome e
+nascimento iguais. A unicidade da chave nome + nascimento é contada em todas as UFs.
+
+A exigência de "idade compatível (±1 ano)" para prováveis foi retirada: no layout novo
+do TSE a idade só existe junto com a própria data de nascimento, e o provável só surge
+quando ela falta.
+
+Validação feita em 28/09/2026: aplicando a regra de nome + nascimento a 2022 e 2020 sem
+olhar o CPF, os 12.131 vínculos confirmados bateram 100% com o CPF (nenhum falso
+positivo), com cobertura de 94%. É a regra que sustenta os vínculos de 2024, ano sem CPF.
+A salvaguarda de CPF divergente veio de um caso real: CPF igual, nenhuma palavra do nome
+em comum e nascimento 6 anos diferente.
 
 Correções em `data/manual/vinculos.csv` (confirmar ou rejeitar um par específico)
 prevalecem sobre qualquer regra.
@@ -125,6 +139,11 @@ histórico.
 Se `NM_SOCIAL_CANDIDATO` estiver preenchido, ele é o nome exibido e o nome civil não
 entra em nenhuma saída pública. Caso contrário, o nome exibido é o nome civil
 (`NM_CANDIDATO`). O nome de urna é sempre exibido.
+
+A trajetória nunca traz o nome usado nas candidaturas anteriores. Há vínculos
+confirmados por CPF e nascimento em que o nome civil mudou por completo (provável
+retificação); publicar o nome antigo exporia essa pessoa. O relatório de revisão mostra
+os dois nomes, mas é interno e nunca publicado.
 
 ### D9. Aptidão e arquivo complementar
 O ano da eleição usa também o arquivo complementar, juntado às candidaturas por

@@ -151,4 +151,7 @@ URLs, contagens por UF, tempo de processamento.
 | 28/09/2026 | complementar | `ST_REELEICAO` vem `#NE` em 2026 | `busca_reeleicao` fica nulo; decidir na seção 6 se deriva da trajetória |
 | 28/09/2026 | consulta_cand | CPF preenchido em todos os anos menos 2024 | vínculo por CPF cobre 2014 a 2022 |
 | 28/09/2026 | todos | Pipeline de normalização, todas as UFs e 7 anos: 54 s, pico de 1,2 GB | dentro do previsto; sem necessidade de DuckDB/polars |
+| 28/09/2026 | vínculo | Regra nome + nascimento aplicada a 2022 e 2020 sem CPF: 100% de precisão contra o CPF, 94% de cobertura | sustenta os vínculos de 2024 |
+| 28/09/2026 | vínculo | CPF igual com nomes sem nenhuma palavra em comum: 10 pares; 9 com mesmo nascimento (mudança de nome civil) e 1 com nascimento 6 anos diferente (CPF digitado errado) | salvaguarda `cpf_divergente` (design D4); trajetória nunca mostra nome anterior |
+| 28/09/2026 | vínculo | Todas as UFs: 31.748 confirmados, 139 ambíguos, 53 prováveis; 169 pessoas com duas candidaturas confirmadas no mesmo ano (substituição, suplementar) | 192 linhas em `revisao_vinculos.csv` |
 | 28/09/2026 | consulta_cand 2026 | 20.987 candidaturas, 20.063 nos cargos titulares; 18.984 aptas e 1.079 inaptas | página por candidatura: ~20 mil arquivos |

@@ -13,13 +13,27 @@ letras e espaços, com espaços repetidos colapsados.
 
 ### Requirement: Vínculo confirmado
 O sistema SHALL marcar como confirmado o vínculo entre uma candidatura do ano da eleição
-e uma candidatura anterior quando (a) ambas têm CPF válido e igual, ou (b) nome
-normalizado e data de nascimento são iguais e essa combinação é única nos dois lados.
+e uma candidatura anterior quando (a) ambas têm CPF válido e igual e o nome (ao menos
+uma palavra em comum, fora partículas) ou a data de nascimento coincidem, ou (b) algum
+lado não tem CPF válido, e nome normalizado e data de nascimento são iguais, com essa
+combinação única nos dois lados. CPFs válidos e diferentes MUST impedir o vínculo.
 
 #### Scenario: Mesmo CPF
 - GIVEN candidaturas de 2026 e 2022 com o mesmo CPF válido
 - WHEN o vínculo é calculado
 - THEN o vínculo é confirmado
+
+#### Scenario: Mesmo CPF com nome e nascimento divergentes
+- GIVEN candidaturas com o mesmo CPF, sem nenhuma palavra do nome em comum e com datas
+  de nascimento diferentes
+- WHEN o vínculo é calculado
+- THEN o caso é marcado como ambíguo e vai para revisão
+
+#### Scenario: CPFs diferentes
+- GIVEN duas candidaturas com CPFs válidos e diferentes, mesmo nome e mesma data de
+  nascimento
+- WHEN o vínculo é calculado
+- THEN elas não são vinculadas
 
 #### Scenario: Homônimos com nascimentos diferentes
 - GIVEN duas pessoas com o mesmo nome normalizado e datas de nascimento diferentes
@@ -34,8 +48,8 @@ normalizado e data de nascimento são iguais e essa combinação é única nos d
 
 ### Requirement: Casos duvidosos vão para revisão
 O sistema MUST classificar como provável o par com mesmo nome normalizado na mesma UF
-e idade compatível quando não houver data de nascimento para comparar, e como ambíguo o
-par cuja chave aponte para mais de uma pessoa. Prováveis e ambíguos MUST NOT aparecer
+quando não houver data de nascimento para comparar, e como ambíguo o par cuja chave
+aponte para mais de uma pessoa ou cujo CPF coincida com nome e nascimento divergentes. Prováveis e ambíguos MUST NOT aparecer
 nas saídas públicas e SHALL ser listados em `revisao_vinculos.csv` com as evidências dos
 dois lados.
 
@@ -103,7 +117,12 @@ pendentes ao mesmo tempo, o detalhe MUST indicar que há registros em verificaç
 ### Requirement: Trajetória publicada
 O sistema MUST incluir no detalhe de cada candidato a lista de candidaturas confirmadas,
 da mais recente para a mais antiga, com ano, cargo, local (município ou UF), partido e
-resultado.
+resultado. A trajetória MUST NOT incluir o nome usado nas candidaturas anteriores.
+
+#### Scenario: Nome civil diferente em eleição anterior
+- GIVEN um vínculo confirmado com uma candidatura anterior registrada com outro nome
+- WHEN o detalhe é gerado
+- THEN a trajetória mostra a candidatura sem o nome anterior
 
 #### Scenario: Candidata que foi vereadora
 - GIVEN uma candidata a deputada estadual em 2026, eleita vereadora em 2020

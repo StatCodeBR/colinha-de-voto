@@ -42,6 +42,14 @@ PADRAO_CAND = {
 }
 
 
+def gerar_cpf(base: int) -> str:
+    """CPF sintético com dígitos verificadores válidos."""
+    d = [int(c) for c in f"{base:09d}"]
+    for pesos in (range(10, 1, -1), range(11, 1, -1)):
+        d.append(sum(x * p for x, p in zip(d, pesos, strict=False)) * 10 % 11 % 10)
+    return "".join(map(str, d))
+
+
 def linha_cand(ano: int, sq: str, numero: str, nome: str, **extra: str) -> dict[str, str]:
     return {
         **PADRAO_CAND,

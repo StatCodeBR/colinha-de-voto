@@ -30,14 +30,14 @@
 - [x] 4.7 Testes com fixtures sintéticas: nulos, zeros à esquerda, coluna ausente, 2º turno, vice excluído, nome social, bens zero versus não declarados
 
 ## 5. Vínculo histórico
-- [ ] 5.1 `normalizar_nome` com testes (acentos, apóstrofos, hífens, espaços)
-- [ ] 5.2 Vínculo confirmado por CPF e por nome + nascimento com unicidade nos dois lados
-- [ ] 5.3 Classificação de prováveis e ambíguos
-- [ ] 5.4 Aplicação de `data/manual/vinculos.csv` (confirmar e rejeitar)
-- [ ] 5.5 Mapeamento de resultado com falha para valores desconhecidos
-- [ ] 5.6 Classificação do histórico (`eleito`, `concorreu`, `sem_registro`, `em_verificacao`) e janela de cobertura
-- [ ] 5.7 `revisao_vinculos.csv` com evidências dos dois lados
-- [ ] 5.8 Testes: homônimos com nascimentos diferentes; chave repetida vira ambíguo; rejeição manual remove vínculo automático; confirmação manual publica provável
+- [x] 5.1 `normalizar_nome` com testes (acentos, apóstrofos, hífens, espaços)
+- [x] 5.2 Vínculo confirmado por CPF e por nome + nascimento com unicidade nos dois lados
+- [x] 5.3 Classificação de prováveis e ambíguos
+- [x] 5.4 Aplicação de `data/manual/vinculos.csv` (confirmar e rejeitar)
+- [x] 5.5 Mapeamento de resultado com falha para valores desconhecidos
+- [x] 5.6 Classificação do histórico (`eleito`, `concorreu`, `sem_registro`, `em_verificacao`) e janela de cobertura
+- [x] 5.7 `revisao_vinculos.csv` com evidências dos dois lados
+- [x] 5.8 Testes: homônimos com nascimentos diferentes; chave repetida vira ambíguo; rejeição manual remove vínculo automático; confirmação manual publica provável
 
 ## 6. Saídas públicas
 - [ ] 6.1 Função única de montagem por allowlist de campos para índice e detalhe

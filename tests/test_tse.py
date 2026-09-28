@@ -9,6 +9,7 @@ from tests.conftest import (
     CABECALHO_COMPL,
     escrever_csv,
     escrever_zip,
+    gerar_cpf,
     linha_cand,
     linha_compl,
 )
@@ -295,9 +296,20 @@ def montar_raw(raiz: Path) -> None:
     tmp = raiz / "tmp"
     cand26 = [
         linha_cand(2026, "1", "1111", "ANA"),
-        linha_cand(2026, "2", "22", "BIA", DS_CARGO="SENADOR"),
+        linha_cand(2026, "2", "22", "BIA", DS_CARGO="SENADOR", NR_CPF_CANDIDATO=gerar_cpf(2)),
     ]
-    pres = [linha_cand(2026, "3", "10", "CIDA", DS_CARGO="PRESIDENTE", SG_UF="BR", SG_UE="BR")]
+    pres = [
+        linha_cand(
+            2026,
+            "3",
+            "10",
+            "CIDA",
+            DS_CARGO="PRESIDENTE",
+            SG_UF="BR",
+            SG_UE="BR",
+            NR_CPF_CANDIDATO=gerar_cpf(3),
+        )
+    ]
     escrever_zip(
         raw / "consulta_cand_2026.zip",
         {

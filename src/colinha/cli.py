@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from colinha import coleta, config, tse
+from colinha import coleta, config, tse, vinculo
 
 
 def _ufs(cfg: config.Config, uf: str | None) -> tuple[str, ...]:
@@ -31,6 +31,7 @@ def cmd_baixar(cfg: config.Config, args: argparse.Namespace) -> None:
 def cmd_processar(cfg: config.Config, args: argparse.Namespace) -> None:
     ufs = _ufs(cfg, args.uf)
     tse.processar(cfg)
+    vinculo.executar(cfg)
     print(f"Tabelas normalizadas em {cfg.dir_interim}. UFs pedidas: {', '.join(ufs)}")
 
 
