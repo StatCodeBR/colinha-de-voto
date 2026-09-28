@@ -145,12 +145,24 @@ HTML, 101 KB com gzip. 20.228 páginas geradas em 13 s.
 O site roda no servidor da StatCode, gerenciado pelo Dokploy, em
 `colinha.statcode.com.br`, com HTTPS pelo domínio configurado no Dokploy.
 
-Fluxo: a equipe roda a pipeline e o gerador na própria máquina, revisa o resultado e só
-então executa `just publicar`, que monta uma imagem nginx com `site/dist/` e um
-`nginx.conf` próprio (gzip, cache, página 404), marca a imagem com data e hora, envia ao
-registry e dispara o webhook do Dokploy para o redeploy. Rollback: reapontar a aplicação
-para a tag anterior. A URL do webhook e as credenciais do registry ficam em `.env`, fora
-do git.
+Fluxo (decidido em 28/09/2026: releases do GitHub, o mesmo padrão de outro projeto da
+StatCode): a equipe roda a pipeline e o gerador na própria máquina, revisa o resultado e
+só então executa `just publicar`, que compacta `site/dist/` em `site.tar.gz` (~9 MB),
+cria a release `site-AAAAMMDD-HHMM` no GitHub com esse anexo, grava a tag em
+`deploy/release.txt` (commit e push) e chama o webhook do Dokploy. O Dokploy usa o
+provider Git deste repositório: constrói a imagem pelo `Dockerfile`, que baixa o
+`site.tar.gz` da release indicada em `deploy/release.txt` e o coloca num nginx com
+`nginx.conf` próprio (gzip, cache, página 404).
+
+Por que a tag fica num arquivo versionado: se o Dockerfile buscasse "a última release",
+o cache do Docker poderia reaproveitar o download antigo. Com o arquivo, cada publicação
+muda o contexto do build e força o download; o histórico do git registra cada
+publicação. Rollback: voltar `deploy/release.txt` para a tag anterior (commit e push) ou
+passar `RELEASE=<tag anterior>` como build arg no Dokploy e fazer o redeploy.
+
+Repositório privado: o download precisa de um token do GitHub com leitura, passado ao
+build como secret `github_token`. Público: nada a configurar. A URL do webhook fica em
+`.env`, fora do git.
 
 Alternativas consideradas:
 - Build dentro do Dokploy (Dockerfile que roda a pipeline): rejeitada porque publicaria
@@ -159,14 +171,19 @@ Alternativas consideradas:
 - rsync de `site/dist/` para um volume servido por nginx: rejeitada porque a troca não é
   atômica e não deixa histórico de versões para voltar atrás.
 - Build type "Static" do Dokploy: rejeitado porque não permite ajustar gzip, cache e 404.
+- Imagem pronta num registry (GHCR ou próprio), puxada pelo provider Docker: funciona e
+  evita o build no servidor, mas exige configurar um registry. Preterida por releases,
+  que a equipe já usa em outro projeto.
+- Imagem Docker salva (`docker save`) como anexo de release: rejeitada porque o Dokploy
+  não carrega imagem de release; exigiria deploy manual por SSH.
 
-Implementação: `Dockerfile` (nginx:1.28-alpine) e `deploy/nginx.conf` com gzip, cache de
-30 dias em `/static/` (CSS e JS com `?v=`), 5 minutos no resto, 404 própria e cabeçalhos
-de segurança, incluindo Content-Security-Policy que só permite recursos do próprio
-domínio. `just publicar` roda `deploy/publicar.sh`: confere privacidade, monta a imagem
-com tag `AAAAMMDD-HHMM` e `latest`, envia ao registry, chama o webhook e anota a tag em
-`deploy/publicacoes.log`. Docker vem do sistema, não do `flake.nix`: o daemon não roda
-dentro do shell do Nix.
+Implementação: `Dockerfile` em dois estágios (alpine baixa a release; nginx:1.28-alpine
+serve) e `deploy/nginx.conf` com gzip, cache de 30 dias em `/static/` (CSS e JS com
+`?v=`), 5 minutos no resto, 404 própria e cabeçalhos de segurança, incluindo
+Content-Security-Policy que só permite recursos do próprio domínio. `just publicar` roda
+`deploy/publicar.sh` (confere privacidade antes de tudo); usa o `gh`, que entrou no
+`flake.nix`. O build foi testado com uma API do GitHub simulada. Docker (para testar a
+imagem localmente) vem do sistema: o daemon não roda dentro do shell do Nix.
 
 ## Risks / Trade-offs
 
@@ -175,13 +192,15 @@ dentro do shell do Nix.
   republicado.
 - **Percepção de viés.** Template único, ordem alfabética, revisão de neutralidade antes
   de publicar (`/checar-neutralidade` e revisão humana de páginas de partidos diferentes).
-- **Registry ou servidor fora do ar na semana da eleição.** Um deploy que falha não
-  derruba o site: a imagem anterior continua no ar, e o rollback é feito pela tag (D9).
+- **GitHub ou servidor fora do ar na semana da eleição.** Um deploy que falha não
+  derruba o site: a imagem anterior continua no ar, e o rollback é feito pela tag da
+  release (D9).
 - **Dados mudam até a eleição.** A colinha confere os candidatos salvos contra o índice
   atual e avisa quando algum deixou de estar apto.
 
 ## Open Questions
 
-- Qual registry de imagens: GHCR ou registry próprio no servidor do Dokploy?
+- O repositório `StatCodeBR/colinha-de-voto` vai ser público ou privado? Privado exige o
+  token de leitura como build secret no Dokploy (D9).
 - A StatCode quer alguma contagem de visitas? Se sim, qual ferramenta sem cookies?
 - Fotos entram no MVP? (Tarefa opcional; aumentam muito o reconhecimento do candidato.)

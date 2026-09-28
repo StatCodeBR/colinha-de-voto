@@ -85,6 +85,6 @@ limpar:
 limpar-tudo: limpar
     rm -rf data/raw data/interim
 
-# Publica o site no subdomínio da StatCode
+# Publica o site: release no GitHub + redeploy no Dokploy
 publicar: site
     ./deploy/publicar.sh

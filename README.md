@@ -82,7 +82,7 @@ just tudo                     # pipeline completo, todas as UFs
 just atualizar                # rebaixa, reprocessa e regenera (todo dia até a eleição)
 just check                    # lint + testes + validação das specs
 just privacidade              # nenhum CPF/nome civil protegido nas saídas e no site
-just publicar                 # imagem nginx + deploy no Dokploy
+just publicar                 # release do site no GitHub + deploy no Dokploy
 ```
 
 Comandos extras no Claude Code: `/atualizar-dados`, `/revisar-vinculos RR` e
@@ -90,20 +90,27 @@ Comandos extras no Claude Code: `/atualizar-dados`, `/revisar-vinculos RR` e
 
 ## Publicação e ciclo diário até a eleição
 
-O site roda no servidor da StatCode, gerenciado pelo Dokploy, como uma imagem nginx com
-o site já gerado (design D9 da change 02). Quem publica gera o site na própria máquina,
-confere e só então envia.
+O site roda no servidor da StatCode, gerenciado pelo Dokploy (design D9 da change 02).
+Quem publica gera o site na própria máquina, confere e só então envia: o `just publicar`
+cria uma release no GitHub com o site compactado (`site.tar.gz`), grava a tag em
+`deploy/release.txt` e pede o redeploy. O Dokploy constrói a imagem nginx baixando essa
+release.
 
 Configuração, uma vez só:
 
-1. Crie o `.env` na raiz (fica fora do git):
+1. `gh auth login` (o `gh` vem do `nix develop`), com permissão para criar releases e
+   fazer push em `StatCodeBR/colinha-de-voto`.
+2. No Dokploy, crie a aplicação:
+   - provider Git, repositório `StatCodeBR/colinha-de-voto`, branch `main`;
+   - build type Dockerfile (`Dockerfile` na raiz), porta 80;
+   - domínio `colinha.statcode.com.br` com HTTPS;
+   - se o repositório for privado: build secret `github_token` com um token do GitHub só
+     de leitura (conteúdo do repositório).
+3. Crie o `.env` na raiz (fica fora do git) com a URL do webhook de deploy da aplicação:
    ```bash
-   COLINHA_IMAGEM=<registry>/statcode/colinha-do-voto
-   DOKPLOY_WEBHOOK=<URL do webhook de deploy da aplicação no Dokploy>
+   DOKPLOY_WEBHOOK=<URL do webhook>
    ```
-2. `docker login <registry>`.
-3. No Dokploy, a aplicação usa o provider Docker com a imagem
-   `$COLINHA_IMAGEM:latest`, porta 80, e o domínio `colinha.statcode.com.br` com HTTPS.
+   Se o Dokploy já faz deploy automático a cada push na `main`, o webhook é opcional.
 
 Todo dia, até 4 de outubro:
 
@@ -111,7 +118,7 @@ Todo dia, até 4 de outubro:
 just atualizar       # rebaixa os dados do TSE, reprocessa e regenera o site
 just privacidade     # confere que nada pessoal vazou
 just servir          # abra três páginas no celular (largura estreita) e confira
-just publicar        # monta a imagem, envia ao registry e dispara o redeploy
+just publicar        # cria a release, grava a tag, faz push e dispara o redeploy
 ```
 
 Se o `just atualizar` parar com erro, o TSE mudou algo (situação nova, coluna nova). O
@@ -119,9 +126,11 @@ site anterior continua no ar; registre em `docs/fontes.md` e ajuste antes de pub
 Vínculos novos em revisão aparecem em `data/processed/revisao_vinculos.csv`
 (`/revisar-vinculos SP` no Claude Code).
 
-Para voltar à versão anterior: cada publicação gera uma tag de data e hora, anotada em
-`deploy/publicacoes.log`. No Dokploy, troque a imagem da aplicação para a tag anterior
-(`$COLINHA_IMAGEM:AAAAMMDD-HHMM`) e faça o redeploy.
+Para voltar à versão anterior: as releases ficam em
+`https://github.com/StatCodeBR/colinha-de-voto/releases` (tags `site-AAAAMMDD-HHMM`).
+Escreva a tag anterior em `deploy/release.txt`, faça commit e push, e dispare o redeploy.
+Em emergência, dá para passar `RELEASE=<tag anterior>` como build arg na aplicação do
+Dokploy e fazer o redeploy (lembre de tirar depois).
 
 ## Onde mudar o quê
 
