@@ -147,7 +147,7 @@ def pagina_candidato(d: dict[str, Any], cfg: Config) -> dict[str, Any]:
         "titulo": titulo,
         "descricao": (
             f"Trajetória eleitoral e dados declarados ao TSE de {d['nome_urna']}, "
-            f"{candidata} a {textos.CARGO_GENERICO[d['cargo']]} {local_eleicao}, "
+            f"{candidata} a {cargo_txt.lower()} {local_eleicao}, "
             f"número {d['numero']}."
         ),
     }

@@ -36,7 +36,7 @@
 - [x] 4.4 Medir o tamanho da maior página de candidato e do maior `indice.json`; ajustar se passar do orçamento
 
 ## 5. Neutralidade e revisão
-- [ ] 5.1 Rodar `/checar-neutralidade` e corrigir o que aparecer
+- [x] 5.1 Rodar `/checar-neutralidade` e corrigir o que aparecer
 - [ ] 5.2 Revisão humana (equipe): duas pessoas conferem lado a lado 10 páginas de partidos diferentes, incluindo candidatos a governador e presidente
 
 ## 6. Publicação

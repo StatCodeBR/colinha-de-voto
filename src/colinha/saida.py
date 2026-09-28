@@ -23,6 +23,9 @@ from colinha.config import Config
 from colinha.tse import ErroDados
 from colinha.vinculo import CONFIRMADO, normalizar_nome
 
+# E-mail em qualquer lugar do texto (há candidaturas que cadastram e-mail como rede social).
+EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+
 ROTULOS_FONTE = {
     "consulta_cand": "Candidaturas",
     "consulta_cand_complementar": "Candidaturas, dados complementares",
@@ -257,6 +260,8 @@ def gerar(cfg: Config, ufs: tuple[str, ...], log=print) -> None:
     ids = atribuir_ids(exib)
     trajs = trajetorias(vinculos, passado, resultados, cfg.eleicao.anos_historico)
     redes_df = pd.read_parquet(cfg.dir_interim / f"redes_sociais_{cfg.eleicao.ano}.parquet")
+    # Links com e-mail não são publicados: e-mail de candidato nunca vai para a saída.
+    redes_df = redes_df[~redes_df["url"].str.contains(EMAIL, regex=True)]
     redes = redes_df.groupby("sq_candidato")["url"].apply(list).to_dict()
 
     ordem = exib.assign(_chave=exib["nome_urna"].map(normalizar_nome)).sort_values(
@@ -310,6 +315,7 @@ def checar_privacidade(cfg: Config) -> list[str]:
         & (atual["nome_civil"] != atual["nome_urna"])
     )
     civis = set(atual.loc[protegido, "nome_civil"].dropna())
+    permitidos = {cfg.projeto.email_contato.lower()}
     problemas = []
     publicos = [cfg.dir_processed, cfg.raiz / "site" / "dist"]
     arquivos = sorted(p for pasta in publicos if pasta.exists() for p in pasta.rglob("*"))
@@ -326,6 +332,9 @@ def checar_privacidade(cfg: Config) -> list[str]:
         onze = set(re.findall(r"(?<!\d)\d{11}(?!\d)", texto))
         if onze & cpfs:
             problemas.append(f"{arquivo}: {len(onze & cpfs)} CPF(s)")
+        emails = {e.lower() for e in EMAIL.findall(texto)} - permitidos
+        if emails:
+            problemas.append(f"{arquivo}: {len(emails)} e-mail(s)")
         if arquivo.suffix in {".json", ".html"} and any(nome in texto for nome in civis):
             problemas.append(f"{arquivo}: nome civil de candidatura com nome social")
     return problemas

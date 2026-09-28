@@ -44,7 +44,7 @@ def cmd_checar_privacidade(cfg: config.Config, args: argparse.Namespace) -> None
         raise tse.ErroDados(
             f"{len(problemas)} arquivo(s) com dados pessoais em {cfg.dir_processed}"
         )
-    print("Nenhum CPF nem nome civil protegido em data/processed/ nem em site/dist/")
+    print("Nenhum CPF, e-mail nem nome civil protegido em data/processed/ nem em site/dist/")
 
 
 def cmd_site(cfg: config.Config, args: argparse.Namespace) -> None:

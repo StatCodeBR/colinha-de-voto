@@ -147,9 +147,16 @@ def titulo(texto: str | None) -> str:
     """"SÃO JOÃO DA BARRA" -> "São João da Barra"."""
     if not texto:
         return NAO_INFORMADO
+
+    def maiuscula(s: str) -> str:
+        # "d'oeste" -> "d'Oeste", como em Santa Bárbara d'Oeste
+        if s.startswith("d'") and len(s) > 2:
+            return "d'" + s[2:3].upper() + s[3:]
+        return s[:1].upper() + s[1:]
+
     palavras = texto.lower().split()
     return " ".join(
-        p if (i > 0 and p in _PARTICULAS) else "-".join(s[:1].upper() + s[1:] for s in p.split("-"))
+        p if (i > 0 and p in _PARTICULAS) else "-".join(maiuscula(s) for s in p.split("-"))
         for i, p in enumerate(palavras)
     )
 
@@ -186,8 +193,8 @@ def bens(declarou: bool | None, total: float | None, quantidade: int | None) -> 
         return NAO_INFORMADO
     if not declarou or total is None:
         return "Não declarou bens ao TSE"
-    itens = "1 bem" if quantidade == 1 else f"{quantidade} bens"
-    return f"{reais(total)}, soma de {itens} declarados"
+    itens = "1 bem declarado" if quantidade == 1 else f"{quantidade} bens declarados"
+    return f"{reais(total)}, soma de {itens}"
 
 
 def idade(anos: int | None) -> str:

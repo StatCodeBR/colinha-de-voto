@@ -49,6 +49,8 @@ def test_sem_registro_sempre_com_janela():
 def test_formatos():
     assert textos.titulo("SÃO JOÃO DA BARRA") == "São João da Barra"
     assert textos.titulo("VICE-PREFEITO") == "Vice-Prefeito"
+    assert textos.titulo("SANTA BÁRBARA D'OESTE") == "Santa Bárbara d'Oeste"
+    assert textos.titulo("ITAPORANGA D'AJUDA") == "Itaporanga d'Ajuda"
     assert textos.titulo(None) == "Não informado"
     assert textos.frase("ENSINO MÉDIO COMPLETO") == "Ensino médio completo"
     assert textos.frase(None) == "Não informado"
@@ -61,7 +63,7 @@ def test_formatos():
 def test_bens_nao_declarados_nao_viram_zero():
     assert textos.bens(False, None, None) == "Não declarou bens ao TSE"
     assert textos.bens(None, None, None) == "Não informado"
-    assert textos.bens(True, 0.0, 1) == "R$ 0,00, soma de 1 bem declarados"
+    assert textos.bens(True, 0.0, 1) == "R$ 0,00, soma de 1 bem declarado"
     assert textos.bens(True, 1500.5, 2) == "R$ 1.500,50, soma de 2 bens declarados"
 
 
@@ -177,6 +179,8 @@ def test_pagina_do_candidato(dist: Path):
     assert "Fonte: TSE, dados extraídos em 28/09/2026" in html
     assert '<meta property="og:title" content="ANA 1111: deputada federal em Roraima' in html
     assert "mailto:" in html and "Encontrou um erro?" in html
+    assert "ANA, candidata a deputada federal em Roraima" in html  # meta descrição
+    assert "dados abertos do TSE (Tribunal Superior Eleitoral)" in html
 
 
 def test_candidato_sem_registro_mostra_a_janela(dist: Path):

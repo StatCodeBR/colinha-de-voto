@@ -233,3 +233,22 @@ def test_checar_privacidade_acha_vazamento(raiz: Path):
     assert saida.checar_privacidade(cfg) == []
     (cfg.dir_processed / "RR" / "vazou.json").write_text('{"x":"00000000191"}')
     assert len(saida.checar_privacidade(cfg)) == 1
+
+
+def test_link_de_rede_com_email_nao_e_publicado(raiz: Path):
+    cfg = gerar_tudo(raiz)
+    redes = cfg.dir_interim / "redes_sociais_2026.parquet"
+    pd.DataFrame(
+        {
+            "sq_candidato": ["1", "1"],
+            "url": ["https://www.facebook.com/FULANA@EXEMPLO.COM", "https://exemplo.invalid/ana"],
+        }
+    ).to_parquet(redes, index=False)
+    saida.gerar(cfg, ("RR",), log=lambda m: None)
+    d = json.loads((cfg.dir_processed / "RR" / "candidatos" / "1111.json").read_text())
+    assert d["redes_sociais"] == ["https://exemplo.invalid/ana"]
+    assert saida.checar_privacidade(cfg) == []
+    (cfg.dir_processed / "RR" / "vazou.json").write_text('{"x":"fulana@exemplo.com"}')
+    assert saida.checar_privacidade(cfg) == [
+        f"{cfg.dir_processed / 'RR' / 'vazou.json'}: 1 e-mail(s)"
+    ]
