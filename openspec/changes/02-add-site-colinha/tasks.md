@@ -23,7 +23,7 @@
 ## 3. Colinha
 - [x] 3.1 Módulo de estado da colinha em `localStorage` (`colinha:v1:{uf}`) com `try/catch` e aviso quando não houver armazenamento
 - [x] 3.2 Botões "Adicionar à colinha" e "Tirar da colinha" na lista e na página do candidato; troca confirmada quando a vaga estiver ocupada; duas vagas de senador
-- [ ] 3.3 Confirmar no TSE a ordem oficial de votação da urna em 2026 e registrar em `docs/fontes.md` (revisão humana: o site do TSE bloqueia acesso automatizado; hoje `ordem_urna` usa a de 2018)
+- [x] 3.3 Confirmar no TSE a ordem oficial de votação da urna em 2026 e registrar em `docs/fontes.md` (revisão humana: o site do TSE bloqueia acesso automatizado; hoje `ordem_urna` usa a de 2018) (confirmada em 28/09/2026 na colinha eleitoral do TSE: igual à de 2018)
 - [x] 3.4 Página `/colinha/` na ordem da urna, com vagas vazias identificadas, botão de apagar e impressão
 - [x] 3.5 Conferência dos candidatos guardados contra o índice atual, com aviso de candidatura não apta
 - [ ] 3.6 Teste manual guiado no celular: montar, trocar, apagar, imprimir, trocar de UF
@@ -41,7 +41,7 @@
 
 ## 6. Publicação
 - [x] 6.1 `Dockerfile` e `nginx.conf` próprios servindo `site/dist/`: gzip para HTML, CSS, JS e JSON; cache longo para fontes e CSS, curto para HTML e `indice.json`; página 404 do site. Testar localmente com `docker run` (Docker vem do sistema; ver D9)
-- [ ] 6.2 (`just publicar`, `deploy/publicar.sh` e `Dockerfile` prontos e testados com API simulada; falta a equipe) Criar a aplicação no Dokploy (provider Git, `Dockerfile`, porta 80) com o domínio `colinha.statcode.com.br` e HTTPS; `gh auth login` e `DOKPLOY_WEBHOOK` no `.env`; primeira publicação real
-- [ ] 6.3 Testar no celular: link colado no WhatsApp mostra a prévia correta
+- [x] 6.2 (`just publicar`, `deploy/publicar.sh` e `Dockerfile` prontos e testados com API simulada; falta a equipe) Criar a aplicação no Dokploy (provider Git, `Dockerfile`, porta 80) com o domínio `colinha.statcode.com.br` e HTTPS; `gh auth login` e `DOKPLOY_WEBHOOK` no `.env`; primeira publicação real (feito em 28/09/2026: aplicação no Dokploy e primeira publicação, release site-20260928-1258)
+- [x] 6.3 Testar no celular: link colado no WhatsApp mostra a prévia correta (conferido em 28/09/2026: título com nome, número, cargo e UF; sem imagem de prévia)
 - [x] 6.4 Documentar no README o ciclo diário até a eleição (`just atualizar` e `just publicar`) e como voltar para a imagem anterior
 - [ ] 6.5 (opcional) Fotos: baixar as fotos de 2026, converter para WebP de 240px, exibir com texto alternativo e sem quebrar o orçamento de desempenho

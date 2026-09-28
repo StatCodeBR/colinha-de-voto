@@ -147,6 +147,7 @@ URLs, contagens por UF, tempo de processamento.
 | Data | Fonte | Descoberta | Impacto |
 |---|---|---|---|
 | 27/09/2026 | TSE CDN | `HEAD` e `curl` padrão recebem 403 da Akamai; `GET` com httpx funciona | usar só `GET` |
+| 28/09/2026 | Colinha eleitoral do TSE (conferência humana) | Ordem da urna em 2026: deputado federal (4 dígitos), deputado estadual (5), senador (3), senador (3), governador (2), presidente (2). Igual à de 2018, já usada em `ordem_urna` | tarefa 3.3 da change 02 concluída; nada muda no site |
 | 28/09/2026 | consulta_cand | Layout novo sem `ST_REELEICAO`, `ST_DECLARAR_BENS` e `DS_DETALHE_SITUACAO_CAND`; `DS_SITUACAO_CANDIDATURA` vem `#NE` em 2026 | baixar o complementar; `apto` vem da situação de julgamento (design D9) |
 | 28/09/2026 | complementar | `ST_REELEICAO` vem `#NE` em 2026 | `busca_reeleicao` fica nulo; decidir na seção 6 se deriva da trajetória |
 | 28/09/2026 | consulta_cand | CPF preenchido em todos os anos menos 2024 | vínculo por CPF cobre 2014 a 2022 |
