@@ -144,6 +144,12 @@ com contagens por UF.
 - THEN `data/processed/RR/indice.json` e os detalhes dos candidatos de RR são gerados
 - AND o manifesto e o resumo são atualizados
 
+#### Scenario: Número herdado por substituto
+- GIVEN uma candidatura inapta e a do substituto, com o mesmo número na mesma UF
+- WHEN as saídas são geradas
+- THEN a candidatura apta fica com o identificador `{uf}/{numero}`
+- AND a inapta fica com `{uf}/{numero}-{sq_candidato}`
+
 #### Scenario: Candidatos a presidente
 - WHEN as saídas são geradas
 - THEN os candidatos a presidente ficam em um índice nacional (`BR`), disponível para

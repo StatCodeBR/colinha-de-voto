@@ -25,6 +25,10 @@ RESULTADOS = {
     "2O TURNO": "segundo_turno_sem_resultado",
 }
 
+# Duração do mandato por cargo, em anos (padrão: 4). Define qual eleição anterior elegeu
+# o mandato atual, para a reeleição (design D10).
+MANDATO_ANOS = {"SENADOR": 8}
+
 COLUNAS_MANUAL = [
     "sq_candidato_atual",
     "ano_passado",
@@ -284,6 +288,61 @@ def classificar(
     )
 
 
+def reeleicao(
+    atual: pd.DataFrame,
+    passado: pd.DataFrame,
+    vinculos: pd.DataFrame,
+    resultados: pd.DataFrame,
+) -> pd.Series:
+    """Eleita para o mesmo cargo e UF na eleição do mandato atual (design D10).
+
+    Verdadeiro, falso ou nulo (há vínculo pendente naquele ano e nenhum confirmado).
+    Índice: `sq_candidato` das candidaturas atuais.
+    """
+    a = pd.DataFrame(
+        {
+            "sq_atual": atual["sq_candidato"],
+            "ano_passado": atual["ano"]
+            - atual["cargo"].map(MANDATO_ANOS).fillna(4).astype("int64"),
+            "cargo": atual["cargo"],
+            "uf": atual["uf"],
+        }
+    )
+    p = (
+        passado[["ano", "sq_candidato", "cargo", "uf"]]
+        .merge(resultados, on=["ano", "sq_candidato"])
+        .rename(
+            columns={
+                "ano": "ano_passado",
+                "sq_candidato": "sq_passado",
+                "cargo": "cargo_passado",
+                "uf": "uf_passado",
+            }
+        )
+    )
+    # Só vínculos com a eleição do mandato atual de cada candidatura.
+    v = vinculos.merge(a, on=["sq_atual", "ano_passado"]).merge(p, on=["ano_passado", "sq_passado"])
+    confirmados = v[v["nivel"] == CONFIRMADO]
+    eleitos = set(
+        confirmados.loc[
+            (confirmados["resultado"] == "eleito")
+            & (confirmados["cargo"] == confirmados["cargo_passado"])
+            & (confirmados["uf"] == confirmados["uf_passado"]),
+            "sq_atual",
+        ]
+    )
+    pendentes = set(v.loc[v["nivel"] != CONFIRMADO, "sq_atual"]) - set(confirmados["sq_atual"])
+
+    def valor(sq: str) -> bool | None:
+        if sq in eleitos:
+            return True
+        if sq in pendentes:
+            return None
+        return False
+
+    return pd.Series([valor(sq) for sq in a["sq_atual"]], index=a["sq_atual"], dtype="boolean")
+
+
 # --- Revisão ------------------------------------------------------------------------------
 
 _EVIDENCIAS = ["ano", "uf", "nm_ue", "cargo", "numero", "partido", "nome_civil", "data_nascimento"]
@@ -330,6 +389,8 @@ def executar(cfg: Config, log=print) -> None:
     vinculos = vincular(atual, passado)
     vinculos = aplicar_manual(vinculos, ler_manual(cfg.dir_manual / "vinculos.csv"), atual, passado)
     historico = classificar(atual["sq_candidato"], vinculos, resultados, cfg.eleicao.anos_historico)
+    reel = reeleicao(atual, passado, vinculos, resultados)
+    historico["busca_reeleicao"] = historico["sq_candidato"].map(reel).astype("boolean")
 
     vinculos.to_parquet(cfg.dir_interim / "vinculos.parquet", index=False)
     historico.to_parquet(cfg.dir_interim / "historico.parquet", index=False)

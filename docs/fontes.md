@@ -154,4 +154,9 @@ URLs, contagens por UF, tempo de processamento.
 | 28/09/2026 | vínculo | Regra nome + nascimento aplicada a 2022 e 2020 sem CPF: 100% de precisão contra o CPF, 94% de cobertura | sustenta os vínculos de 2024 |
 | 28/09/2026 | vínculo | CPF igual com nomes sem nenhuma palavra em comum: 10 pares; 9 com mesmo nascimento (mudança de nome civil) e 1 com nascimento 6 anos diferente (CPF digitado errado) | salvaguarda `cpf_divergente` (design D4); trajetória nunca mostra nome anterior |
 | 28/09/2026 | vínculo | Todas as UFs: 31.748 confirmados, 139 ambíguos, 53 prováveis; 169 pessoas com duas candidaturas confirmadas no mesmo ano (substituição, suplementar) | 192 linhas em `revisao_vinculos.csv` |
+| 28/09/2026 | redes sociais | URLs publicadas em MAIÚSCULAS; o caminho de URL diferencia maiúsculas, então alguns links (ex.: compartilhamento do Facebook) podem não abrir | change 02: exibir sem prometer que o link funciona; domínio pode ir para minúsculas |
+| 28/09/2026 | redes sociais | Uma candidatura com 912 links (máx.); a seguinte tem 184 | change 02: limite de exibição igual para todos |
+| 28/09/2026 | DivulgaCandContas | API devolve 403 para acesso automatizado | tarefa 6.5 feita por pessoa no navegador |
+| 28/09/2026 | saídas | Todas as UFs: 46 s; 20.093 JSON (84 MB); maior `indice.json` SP 490 KB (49 KB gzip); detalhe típico ~3 KB, maior 49 KB (912 links) | dentro do orçamento do design 02 (D8) |
+| 28/09/2026 | saídas RR | Dep. estadual 250 (233 aptas), dep. federal 108 (102), governador 5 (5), senador 13 (13) | comparar com o DivulgaCandContas (6.5) |
 | 28/09/2026 | consulta_cand 2026 | 20.987 candidaturas, 20.063 nos cargos titulares; 18.984 aptas e 1.079 inaptas | página por candidatura: ~20 mil arquivos |

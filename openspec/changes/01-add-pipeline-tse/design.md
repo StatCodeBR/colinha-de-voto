@@ -47,8 +47,13 @@ considerados; ficam como alternativa se o processamento dos anos municipais fica
 ### D3. Identificadores
 - Candidatura: (`ano`, `sq_candidato`).
 - Página pública: `{uf}/{numero}` (ex.: `sp/12345`); presidente em `br/{numero}`. Curto e
-  fácil de compartilhar. O número é único por UF entre os cargos de 2026 (a quantidade de
-  dígitos difere por cargo).
+  fácil de compartilhar. A quantidade de dígitos difere por cargo, e o número é único
+  por UF entre as candidaturas aptas.
+- Número repetido: o substituto herda o número de quem renunciou ou foi indeferido
+  (115 casos em 28/09/2026). A candidatura apta fica com `{uf}/{numero}`, que é o número
+  digitado na urna; as inaptas com o mesmo número ficam com
+  `{uf}/{numero}-{sq_candidato}`. Duas aptas com o mesmo número na mesma UF
+  interrompem o processamento.
 - Nenhum identificador público deriva de CPF: um hash de CPF é reversível por força
   bruta.
 
@@ -171,9 +176,22 @@ depois do fechamento continuam na urna); só `DS_SITUACAO_JULGAMENTO` (ignora de
 posteriores registradas no pleito).
 
 ### D10. Reeleição
-`ST_REELEICAO` vem `#NE` em 2026: o TSE não informa quem busca reeleição. O campo
-`busca_reeleicao` fica nulo até a decisão da seção 6 (ver Open Questions). Nunca
-preencher com `false`.
+`ST_REELEICAO` vem `#NE` em 2026: o TSE não informa quem busca reeleição. Decisão
+(28/09/2026): derivar da trajetória confirmada. `busca_reeleicao` é verdadeiro quando
+a pessoa tem vínculo confirmado com uma candidatura eleita **para o mesmo cargo, na
+mesma UF, na eleição que elegeu o mandato atual**: 4 anos antes para todos os cargos e
+8 anos antes para senador (mandato de 8 anos; em 2026 é a eleição de 2018).
+
+- Falso quando não há essa candidatura eleita entre os vínculos confirmados.
+- Nulo quando não há confirmada, mas há vínculo pendente (provável ou ambíguo) naquele
+  ano: pode ser reeleição, e o site não afirma nada.
+- Não cobre suplente que assumiu o mandato: o TSE registra essa pessoa como suplente, e
+  o site não pode afirmar que ela exerce o cargo.
+
+O site descreve o fato ("Eleita deputada estadual em 2022"), não a intenção.
+
+Alternativa considerada: tirar o filtro de reeleição do site. Rejeitada porque a
+informação é útil ao eleitor e sai de dado confirmado.
 
 ## Risks / Trade-offs
 
@@ -193,8 +211,6 @@ preencher com `false`.
 
 ## Open Questions
 
-- Reeleição (D10): derivar `busca_reeleicao` da trajetória confirmada (eleito na
-  eleição anterior para o mesmo cargo e UF) ou deixar o filtro de reeleição fora do site?
 - Existe um padrão de URL estável no DivulgaCandContas para linkar cada candidato?
 - Candidaturas inaptas: o site mostra por padrão ou só sob filtro? (Proposta: os dados
   incluem todas; o site mostra aptas por padrão.)

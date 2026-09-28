@@ -130,6 +130,34 @@ resultado. A trajetória MUST NOT incluir o nome usado nas candidaturas anterior
 - THEN a trajetória mostra 2020, vereador(a), o município, o partido da época e
   `eleito`
 
+### Requirement: Busca de reeleição
+O sistema SHALL marcar `busca_reeleicao` como verdadeiro quando o candidato tem vínculo
+confirmado com uma candidatura eleita para o mesmo cargo, na mesma UF, na eleição que
+elegeu o mandato atual (8 anos antes para senador, 4 anos antes para os demais cargos).
+Quando não houver vínculo confirmado naquela eleição, mas houver vínculo pendente, o
+campo MUST ser nulo, e não falso.
+
+#### Scenario: Deputada eleita em 2022
+- GIVEN uma candidata a deputada federal em 2026, eleita deputada federal na mesma UF
+  em 2022, com vínculo confirmado
+- WHEN o histórico é classificado
+- THEN `busca_reeleicao` é verdadeiro
+
+#### Scenario: Senador eleito oito anos antes
+- GIVEN um candidato a senador em 2026, eleito senador em 2018
+- WHEN o histórico é classificado
+- THEN `busca_reeleicao` é verdadeiro
+
+#### Scenario: Eleita para outro cargo
+- GIVEN uma candidata a deputada federal em 2026, eleita deputada estadual em 2022
+- WHEN o histórico é classificado
+- THEN `busca_reeleicao` é falso
+
+#### Scenario: Vínculo pendente
+- GIVEN um candidato sem vínculo confirmado em 2022 e com um vínculo ambíguo em 2022
+- WHEN o histórico é classificado
+- THEN `busca_reeleicao` é nulo
+
 ### Requirement: Resumo de qualidade do vínculo
 O sistema MUST gravar em `resumo.json`, por UF, a quantidade de vínculos confirmados,
 prováveis e ambíguos e a quantidade de candidatos em cada classe de histórico.

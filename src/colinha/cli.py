@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from colinha import coleta, config, tse, vinculo
+from colinha import coleta, config, saida, tse, vinculo
 
 
 def _ufs(cfg: config.Config, uf: str | None) -> tuple[str, ...]:
@@ -32,7 +32,19 @@ def cmd_processar(cfg: config.Config, args: argparse.Namespace) -> None:
     ufs = _ufs(cfg, args.uf)
     tse.processar(cfg)
     vinculo.executar(cfg)
-    print(f"Tabelas normalizadas em {cfg.dir_interim}. UFs pedidas: {', '.join(ufs)}")
+    saida.gerar(cfg, ufs)
+    print(f"Saídas públicas em {cfg.dir_processed}")
+
+
+def cmd_checar_privacidade(cfg: config.Config, args: argparse.Namespace) -> None:
+    problemas = saida.checar_privacidade(cfg)
+    for p in problemas:
+        print(p, file=sys.stderr)
+    if problemas:
+        raise tse.ErroDados(
+            f"{len(problemas)} arquivo(s) com dados pessoais em {cfg.dir_processed}"
+        )
+    print(f"Nenhum CPF nem nome civil protegido em {cfg.dir_processed}")
 
 
 def cmd_tudo(cfg: config.Config, args: argparse.Namespace) -> None:
@@ -61,6 +73,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("processar", help="normaliza e cruza os dados")
     com_uf(p)
     p.set_defaults(func=cmd_processar)
+
+    p = sub.add_parser("checar-privacidade", help="procura dados pessoais nas saídas públicas")
+    p.set_defaults(func=cmd_checar_privacidade, uf=None)
 
     p = sub.add_parser("tudo", help="baixar + processar")
     com_uf(p)

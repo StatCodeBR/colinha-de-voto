@@ -32,6 +32,10 @@ processar *args:
 camara *args:
     uv run colinha camara {{args}}
 
+# Confere que nenhum CPF ou nome civil protegido aparece em data/processed/
+privacidade:
+    uv run colinha checar-privacidade
+
 # Gera o site estático em site/dist/
 site:
     uv run colinha site

@@ -40,11 +40,11 @@
 - [x] 5.8 Testes: homônimos com nascimentos diferentes; chave repetida vira ambíguo; rejeição manual remove vínculo automático; confirmação manual publica provável
 
 ## 6. Saídas públicas
-- [ ] 6.1 Função única de montagem por allowlist de campos para índice e detalhe
-- [ ] 6.2 `indice.json` por UF, índice nacional `BR` para presidente, detalhe por candidato
-- [ ] 6.3 `manifesto.json` e `resumo.json`
-- [ ] 6.4 Teste de privacidade: coletar todos os CPFs de `data/interim/` e garantir que nenhum aparece em `data/processed/`
-- [ ] 6.5 Rodar do zero para RR; conferir contagens com o total de candidatos de RR no DivulgaCandContas
-- [ ] 6.6 Rodar para todas as UFs; registrar tempo total e contagens em `docs/fontes.md`
+- [x] 6.1 Função única de montagem por allowlist de campos para índice e detalhe
+- [x] 6.2 `indice.json` por UF, índice nacional `BR` para presidente, detalhe por candidato
+- [x] 6.3 `manifesto.json` e `resumo.json`
+- [x] 6.4 Teste de privacidade: coletar todos os CPFs de `data/interim/` e garantir que nenhum aparece em `data/processed/`
+- [ ] 6.5 Rodar do zero para RR; conferir contagens com o total de candidatos de RR no DivulgaCandContas (revisão humana: o DivulgaCandContas bloqueia acesso automatizado; contagens em `docs/fontes.md`)
+- [x] 6.6 Rodar para todas as UFs; registrar tempo total e contagens em `docs/fontes.md`
 - [ ] 6.7 Revisão humana (equipe): conferir 10 candidatos conhecidos contra o DivulgaCandContas, incluindo pelo menos um reeleição e um vereador que concorre a deputado
 - [ ] 6.8 (opcional) Descobrir padrão de URL estável do DivulgaCandContas por candidato e incluir no detalhe
