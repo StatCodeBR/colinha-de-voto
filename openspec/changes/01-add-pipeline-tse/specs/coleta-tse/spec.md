@@ -4,8 +4,8 @@
 
 ### Requirement: Download com cache e manifesto
 O pipeline MUST baixar do CDN do TSE os arquivos de candidaturas do ano da eleição e dos
-anos de histórico configurados, além de bens declarados e redes sociais do ano da
-eleição, registrando cada arquivo em `data/raw/manifest.json` com URL, data e hora de
+anos de histórico configurados, além do arquivo complementar, bens declarados e redes
+sociais do ano da eleição, registrando cada arquivo em `data/raw/manifest.json` com URL, data e hora de
 extração, sha256 e tamanho.
 
 #### Scenario: Primeiro download
@@ -57,7 +57,10 @@ mantendo o resultado do último turno disputado.
 ### Requirement: Candidaturas exibíveis
 O pipeline MUST incluir nas saídas públicas do ano da eleição apenas os cargos titulares
 configurados em `config.toml`, mantendo a situação da candidatura para que o site possa
-distinguir candidaturas aptas das demais.
+distinguir candidaturas aptas das demais. A aptidão SHALL vir da situação de julgamento
+no pleito ou, quando ela for nula, da situação de julgamento do pedido: candidaturas
+deferidas, com recurso ou pendentes de julgamento são aptas. Uma situação sem
+mapeamento MUST interromper o processamento.
 
 #### Scenario: Vice e suplentes
 - GIVEN candidaturas a vice-governador e a suplente de senador
@@ -65,9 +68,20 @@ distinguir candidaturas aptas das demais.
 - THEN elas não aparecem no índice da UF
 
 #### Scenario: Candidatura inapta
-- GIVEN uma candidatura com situação inapta
+- GIVEN uma candidatura indeferida sem recurso, com renúncia ou cancelada
 - WHEN as saídas públicas são geradas
 - THEN ela aparece no índice com `apto: false`
+
+#### Scenario: Candidatura sub judice
+- GIVEN uma candidatura indeferida em prazo recursal ou com recurso
+- WHEN as saídas públicas são geradas
+- THEN ela aparece no índice com `apto: true`
+- AND o detalhe traz a situação por extenso
+
+#### Scenario: Situação desconhecida
+- GIVEN uma situação de julgamento que não está no mapeamento
+- WHEN o arquivo é processado
+- THEN o processamento falha informando o valor
 
 ### Requirement: Proteção de dados pessoais nas saídas
 O pipeline MUST NOT gravar CPF, título de eleitor ou e-mail de candidatos em
@@ -109,6 +123,11 @@ bens com valor zero".
 - GIVEN uma candidatura sem nenhum bem no arquivo de bens
 - WHEN o detalhe é gerado
 - THEN `bens_total` é nulo e `declarou_bens` reflete a informação do TSE
+
+#### Scenario: Declaração de bens não divulgada
+- GIVEN uma candidatura com `ST_DECLARAR_BENS` "Não divulgável"
+- WHEN o detalhe é gerado
+- THEN `declarou_bens` é nulo, e não `false`
 
 #### Scenario: Candidato com vários bens
 - GIVEN uma candidatura com três bens declarados

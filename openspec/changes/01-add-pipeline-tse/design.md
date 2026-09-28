@@ -4,13 +4,18 @@
 
 Os arquivos de candidaturas do TSE ficam no CDN
 (`consulta_cand/consulta_cand_{ano}.zip`), com um CSV por UF e um consolidado nacional.
-São CSVs com `;`, `latin-1`, marcadores de nulo próprios (`#NULO#`, `#NE#`, `-1`...) e
-uma linha por turno. `SQ_CANDIDATO` identifica a candidatura naquele ano, não a pessoa.
+São CSVs com `;`, `latin-1`, marcadores de nulo próprios (`#NULO`, `#NULO#`, `#NE`,
+`-1`, `-4`...) e uma linha por turno. `SQ_CANDIDATO` identifica a candidatura naquele
+ano, não a pessoa. Detalhes conferidos nos arquivos reais em `docs/fontes.md`.
 
-O CPF foi ocultado dos dados abertos em 2024, inclusive retroativamente. Para 2026, a
-minuta do TSE voltou a tratar o CPF como público, mas é preciso confirmar no arquivo.
-Na prática, o vínculo com anos anteriores vai depender de nome completo e data de
-nascimento.
+Conferido em 28/09/2026: o CPF está preenchido em 2026 e em todos os anos de histórico,
+menos 2024, em que vem todo como `-4`. `DT_NASCIMENTO` está preenchida em todos os anos.
+O vínculo usa CPF para 2014 a 2022 e depende de nome completo + data de nascimento só
+para 2024.
+
+No layout novo do TSE (todos os anos menos 2016), situação de julgamento, declaração de
+bens e reeleição saíram do `consulta_cand` e foram para o
+`consulta_cand_complementar_{ano}.zip`, e `DS_SITUACAO_CANDIDATURA` vem `#NE` em 2026.
 
 ## Goals / Non-Goals
 
@@ -121,6 +126,36 @@ Se `NM_SOCIAL_CANDIDATO` estiver preenchido, ele é o nome exibido e o nome civi
 entra em nenhuma saída pública. Caso contrário, o nome exibido é o nome civil
 (`NM_CANDIDATO`). O nome de urna é sempre exibido.
 
+### D9. Aptidão e arquivo complementar
+O ano da eleição usa também o arquivo complementar, juntado às candidaturas por
+`SQ_CANDIDATO` (uma linha por candidatura; falta ou repetição interrompe o
+processamento). Dele vêm `declarou_bens` (`ST_DECLARAR_BENS`), `busca_reeleicao`
+(`ST_REELEICAO`) e a situação de julgamento.
+
+`situacao_julgamento` é `DS_SITUACAO_JULGAMENTO_PLEITO`, a decisão mais recente; quando
+ela é nula (candidatura fora da urna), vale `DS_SITUACAO_JULGAMENTO`. `apto` significa
+"está na urna e pode receber votos", inclusive sub judice:
+
+| Situação | apto |
+|---|---|
+| DEFERIDO, DEFERIDO COM RECURSO, DEFERIDO EM PRAZO RECURSAL OU COM RECURSO | sim |
+| INDEFERIDO EM PRAZO RECURSAL OU COM RECURSO, PEDIDO NÃO CONHECIDO EM PRAZO RECURSAL OU COM RECURSO | sim (sub judice) |
+| PENDENTE DE JULGAMENTO | sim |
+| INDEFERIDO, PEDIDO NÃO CONHECIDO, RENÚNCIA, CANCELADO, FALECIMENTO | não |
+
+Valor fora da tabela interrompe o processamento com a lista de valores, como em D6.
+A situação por extenso vai para o detalhe, para o site explicar os casos sub judice.
+
+Alternativas consideradas: `DS_SITUACAO_CANDIDATURA` (vem `#NE` em 2026);
+`ST_CANDIDATO_INSERIDO_URNA` (diz se o nome está na urna, não se o voto vale: renúncias
+depois do fechamento continuam na urna); só `DS_SITUACAO_JULGAMENTO` (ignora decisões
+posteriores registradas no pleito).
+
+### D10. Reeleição
+`ST_REELEICAO` vem `#NE` em 2026: o TSE não informa quem busca reeleição. O campo
+`busca_reeleicao` fica nulo até a decisão da seção 6 (ver Open Questions). Nunca
+preencher com `false`.
+
 ## Risks / Trade-offs
 
 - **Homônimo vinculado errado** atribui a trajetória de outra pessoa a alguém, com dano
@@ -132,14 +167,15 @@ entra em nenhuma saída pública. Caso contrário, o nome exibido é o nome civi
   com mensagem clara.
 - **Dados de 2026 mudam até a eleição** (indeferimentos, renúncias). Mitigação:
   `/atualizar-dados` diário até 4/out.
-- **Anos municipais são grandes.** Mitigação: `usecols`, processamento por ano, cache
-  em parquet.
+- **Anos municipais são grandes.** Medido em 28/09/2026: todas as UFs e 7 anos em 54 s,
+  pico de 1,2 GB, lendo só as colunas necessárias. Sem necessidade de DuckDB ou polars.
+- **Situação de julgamento nova** durante a atualização diária. Mitigação: o
+  processamento falha com o valor novo (D9) e o site anterior continua no ar.
 
 ## Open Questions
 
-- O arquivo de 2026 traz o CPF preenchido?
-- `DT_NASCIMENTO` está presente em todos os anos da janela, depois do mascaramento de
-  2024?
+- Reeleição (D10): derivar `busca_reeleicao` da trajetória confirmada (eleito na
+  eleição anterior para o mesmo cargo e UF) ou deixar o filtro de reeleição fora do site?
 - Existe um padrão de URL estável no DivulgaCandContas para linkar cada candidato?
 - Candidaturas inaptas: o site mostra por padrão ou só sob filtro? (Proposta: os dados
   incluem todas; o site mostra aptas por padrão.)
