@@ -23,8 +23,8 @@ manter o site em Python + Jinja2 evita uma segunda cadeia de build.
 ### D1. Uma página HTML estática por candidato
 Alternativa considerada: uma única página que carrega o candidato por JavaScript.
 Rejeitada porque a prévia do WhatsApp lê as meta tags do HTML e não executa JavaScript.
-Custo: dezenas de milhares de arquivos. Se o provedor limitar, o plano B é gerar
-páginas só para candidaturas aptas e deixar as demais na lista com link para o TSE.
+Custo: cerca de 20 mil arquivos em 2026. Em servidor próprio (D9) não há limite de
+arquivos por deploy.
 
 ### D2. URLs curtas
 `/` (escolher UF), `/{uf}/` (cargos da UF), `/{uf}/{cargo}/` (lista),
@@ -123,6 +123,25 @@ Página de candidato abaixo de 60 KB transferidos (sem fontes em cache). `indice
 maior UF abaixo de 250 KB com gzip. Fontes: só os pesos usados, em woff2, com
 `font-display: swap`.
 
+### D9. Publicação
+O site roda no servidor da StatCode, gerenciado pelo Dokploy, em
+`colinha.statcode.com.br`, com HTTPS pelo domínio configurado no Dokploy.
+
+Fluxo: a equipe roda a pipeline e o gerador na própria máquina, revisa o resultado e só
+então executa `just publicar`, que monta uma imagem nginx com `site/dist/` e um
+`nginx.conf` próprio (gzip, cache, página 404), marca a imagem com data e hora, envia ao
+registry e dispara o webhook do Dokploy para o redeploy. Rollback: reapontar a aplicação
+para a tag anterior. A URL do webhook e as credenciais do registry ficam em `.env`, fora
+do git.
+
+Alternativas consideradas:
+- Build dentro do Dokploy (Dockerfile que roda a pipeline): rejeitada porque publicaria
+  dados sem revisão humana de vínculos e neutralidade, baixaria ~310 MB do TSE a cada
+  deploy e dependeria de o TSE aceitar o IP do servidor.
+- rsync de `site/dist/` para um volume servido por nginx: rejeitada porque a troca não é
+  atômica e não deixa histórico de versões para voltar atrás.
+- Build type "Static" do Dokploy: rejeitado porque não permite ajustar gzip, cache e 404.
+
 ## Risks / Trade-offs
 
 - **Erro de dado publicado.** Toda página tem "Encontrou um erro?" com e-mail
@@ -130,13 +149,13 @@ maior UF abaixo de 250 KB com gzip. Fontes: só os pesos usados, em woff2, com
   republicado.
 - **Percepção de viés.** Template único, ordem alfabética, revisão de neutralidade antes
   de publicar (`/checar-neutralidade` e revisão humana de páginas de partidos diferentes).
-- **Limite de arquivos no provedor.** Contar arquivos antes do primeiro deploy (plano B
-  em D1).
+- **Registry ou servidor fora do ar na semana da eleição.** Um deploy que falha não
+  derruba o site: a imagem anterior continua no ar, e o rollback é feito pela tag (D9).
 - **Dados mudam até a eleição.** A colinha confere os candidatos salvos contra o índice
   atual e avisa quando algum deixou de estar apto.
 
 ## Open Questions
 
-- Qual provedor hospeda o subdomínio da A Caminho das Pedras e quais os limites dele?
+- Qual registry de imagens: GHCR ou registry próprio no servidor do Dokploy?
 - A StatCode quer alguma contagem de visitas? Se sim, qual ferramenta sem cookies?
 - Fotos entram no MVP? (Tarefa opcional; aumentam muito o reconhecimento do candidato.)

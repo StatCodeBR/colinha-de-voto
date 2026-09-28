@@ -4,7 +4,7 @@
 [projeto]
 nome = "Colinha do Voto"
 subtitulo = "Conheça quem você vai votar antes de ir à urna"
-url_base = "https://colinha.statcode.com.br"   # TODO: confirmar subdomínio e domínio da StatCode
+url_base = "https://colinha.statcode.com.br"
 email_contato = "contato@statcode.com.br"      # TODO: confirmar (usado no "Encontrou um erro?")
 url_statcode = "https://statcode.com.br"       # TODO: confirmar
 repositorio = ""                               # TODO: link do código aberto, se for público

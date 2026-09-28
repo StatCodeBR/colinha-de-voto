@@ -23,7 +23,8 @@ na urna, onde o celular não pode entrar: por isso a colinha impressa ou anotada
 - Metadados de compartilhamento (título e descrição na prévia do WhatsApp) e botão de
   compartilhar.
 - Identidade visual própria e neutra, com o número em caixinhas como elemento marcante.
-- Publicação em subdomínio da StatCode, no mesmo provedor da A Caminho das Pedras.
+- Publicação em `colinha.statcode.com.br`, no servidor da StatCode com Dokploy, como
+  imagem nginx contendo o site gerado.
 
 Fora do escopo: dados da Câmara (change 03), fotos (tarefa opcional), voto de legenda
 na colinha, comparação lado a lado entre candidatos.
@@ -43,5 +44,6 @@ na colinha, comparação lado a lado entre candidatos.
 - Código novo: `src/colinha/site/`, `src/colinha/templates/`, `src/colinha/static/`.
 - Dependência: jinja2.
 - Consome os JSON da change 01; não altera o pipeline.
-- Hospedagem: milhares de arquivos HTML (um por candidato). Verificar limites de
-  arquivos por deploy no provedor da StatCode.
+- Hospedagem: servidor da StatCode (Dokploy). Cerca de 20 mil páginas em 2026, uma por
+  candidatura, sem limite de arquivos por deploy. Precisa de um registry de imagens
+  (a definir).

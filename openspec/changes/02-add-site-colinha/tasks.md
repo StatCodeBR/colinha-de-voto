@@ -40,8 +40,8 @@
 - [ ] 5.2 Revisão humana (equipe): duas pessoas conferem lado a lado 10 páginas de partidos diferentes, incluindo candidatos a governador e presidente
 
 ## 6. Publicação
-- [ ] 6.1 Contar os arquivos gerados e conferir o limite do provedor da StatCode; aplicar o plano B do design se necessário
-- [ ] 6.2 Configurar o subdomínio e o deploy no mesmo provedor da A Caminho das Pedras, com HTTPS, e implementar a recipe `just publicar` (hoje ela só avisa que falta configurar)
+- [ ] 6.1 `Dockerfile` e `nginx.conf` próprios servindo `site/dist/`: gzip para HTML, CSS, JS e JSON; cache longo para fontes e CSS, curto para HTML e `indice.json`; página 404 do site. Adicionar Docker ou Podman ao `flake.nix` e testar localmente com `docker run`
+- [ ] 6.2 Escolher e configurar o registry; criar a aplicação no Dokploy (provider Docker) com o domínio `colinha.statcode.com.br` e HTTPS; implementar `just publicar` (hoje ela só avisa que falta configurar): gerar o site, montar a imagem com tag de data e hora, enviar ao registry e chamar o webhook do Dokploy, com URL do webhook e credenciais em `.env`
 - [ ] 6.3 Testar no celular: link colado no WhatsApp mostra a prévia correta
-- [ ] 6.4 Documentar no README o ciclo diário até a eleição: `just atualizar` e `just publicar`
+- [ ] 6.4 Documentar no README o ciclo diário até a eleição (`just atualizar` e `just publicar`) e como voltar para a imagem anterior
 - [ ] 6.5 (opcional) Fotos: baixar as fotos de 2026, converter para WebP de 240px, exibir com texto alternativo e sem quebrar o orçamento de desempenho
