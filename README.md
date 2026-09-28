@@ -100,15 +100,14 @@ Configuração, uma vez só:
 
 1. `gh auth login` (o `gh` vem do `nix develop`), com permissão para criar releases e
    fazer push em `StatCodeBR/colinha-de-voto`.
-2. No Dokploy, crie a aplicação:
-   - provider Git, repositório `StatCodeBR/colinha-de-voto`, branch `main`;
-   - build type Dockerfile (`Dockerfile` na raiz), porta 80;
-   - domínio `colinha.statcode.com.br` com HTTPS.
-3. Crie o `.env` na raiz (fica fora do git) com a URL do webhook de deploy da aplicação:
-   ```bash
-   DOKPLOY_WEBHOOK=<URL do webhook>
-   ```
-   Se o Dokploy já faz deploy automático a cada push na `main`, o webhook é opcional.
+2. No Dokploy, crie a aplicação (passo a passo em `docs/deploy.md`):
+   provider Git com `https://github.com/StatCodeBR/colinha-de-voto.git`, branch `main`,
+   build type Dockerfile, domínio `colinha.statcode.com.br` na porta 80 com HTTPS, e
+   Auto Deploy ligado.
+3. No GitHub, cadastre o webhook do Dokploy (Settings → Webhooks), evento `push`. Assim
+   o commit que o `just publicar` faz em `deploy/release.txt` dispara o deploy. Deixe
+   `DOKPLOY_WEBHOOK` fora do `.env`: o webhook do Dokploy confere a branch no conteúdo
+   enviado pelo GitHub, e uma chamada direta pode ser recusada.
 
 Todo dia, até 4 de outubro:
 
