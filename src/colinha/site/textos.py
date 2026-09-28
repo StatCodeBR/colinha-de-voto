@@ -22,6 +22,31 @@ NOMES_UF = {
     "TO": "Tocantins", "BR": "Brasil",
 }  # fmt: skip
 
+# Artigo do nome da UF: "no Rio de Janeiro", "na Bahia", "em São Paulo".
+ARTIGO_UF = {
+    "AC": "o", "AL": "", "AM": "o", "AP": "o", "BA": "a", "CE": "o", "DF": "o", "ES": "o",
+    "GO": "", "MA": "o", "MG": "", "MS": "", "MT": "", "PA": "o", "PB": "a", "PE": "",
+    "PI": "o", "PR": "o", "RJ": "o", "RN": "o", "RO": "", "RR": "", "RS": "o", "SC": "",
+    "SE": "", "SP": "", "TO": "o", "BR": "o",
+}  # fmt: skip
+
+
+def em_uf(uf: str) -> str:
+    """"em São Paulo", "no Rio de Janeiro", "na Bahia"."""
+    return f"{ {'o': 'no', 'a': 'na', '': 'em'}[ARTIGO_UF[uf]]} {NOMES_UF[uf]}"
+
+
+def de_uf(uf: str) -> str:
+    """"de São Paulo", "do Rio de Janeiro", "da Bahia"."""
+    return f"{ {'o': 'do', 'a': 'da', '': 'de'}[ARTIGO_UF[uf]]} {NOMES_UF[uf]}"
+
+
+def para_uf(uf: str) -> str:
+    """"para São Paulo", "para o Rio de Janeiro", "para a Bahia"."""
+    artigo = ARTIGO_UF[uf]
+    return f"para {artigo} {NOMES_UF[uf]}" if artigo else f"para {NOMES_UF[uf]}"
+
+
 # Cargo do TSE -> (masculino, feminino, sem gênero declarado).
 CARGOS = {
     "PRESIDENTE": ("Presidente", "Presidente", "Presidente"),
@@ -215,3 +240,25 @@ def link_rede(url: str) -> dict[str, str] | None:
     host = m.group(2).lower()
     caminho = m.group(3) or ""
     return {"href": f"{esquema}://{host}{caminho}", "texto": f"{host}{caminho}"}
+
+
+def voltar(pagina: str, uf: str | None = None, cargo: str | None = None) -> dict[str, str]:
+    """Destino e texto do link "Voltar" de cada subpágina (change add-botao-voltar).
+
+    `pagina`: "uf", "lista", "candidato", "colinha" ou "metodologia". Candidato a
+    presidente (`uf` "BR") volta para a página inicial; o JavaScript troca pela lista de
+    presidente da última UF visitada, quando houver.
+    """
+    inicio = {"href": "/", "texto": "Voltar para a escolha de estado"}
+    if pagina in {"uf", "colinha", "metodologia"}:
+        return inicio
+    if pagina == "lista" and uf:
+        return {"href": f"/{uf.lower()}/", "texto": f"Voltar {para_uf(uf)}"}
+    if pagina == "candidato" and uf and cargo:
+        if uf == "BR":
+            return inicio
+        return {
+            "href": f"/{uf.lower()}/{slug_cargo(cargo)}/",
+            "texto": f"Voltar para {CARGO_GENERICO[cargo]} {em_uf(uf)}",
+        }
+    raise ErroTexto(f"página sem destino de volta: {pagina!r} (uf={uf!r}, cargo={cargo!r})")

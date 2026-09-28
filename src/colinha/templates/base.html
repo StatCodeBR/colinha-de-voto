@@ -25,6 +25,9 @@
   <a class="topo-colinha" href="/colinha/">Minha colinha</a>
 </header>
 <main id="conteudo">
+{% if voltar is defined and voltar %}
+<p class="voltar"><a href="{{ voltar.href }}" data-voltar{% if voltar.presidente is defined %} data-voltar-presidente{% endif %}><span aria-hidden="true">← </span>{{ voltar.texto }}</a></p>
+{% endif %}
 {% block conteudo %}{% endblock %}
 </main>
 <footer class="rodape">
