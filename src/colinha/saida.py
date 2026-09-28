@@ -297,8 +297,8 @@ def gerar(cfg: Config, ufs: tuple[str, ...], log=print) -> None:
 
 
 def checar_privacidade(cfg: Config) -> list[str]:
-    """Procura em data/processed/ CPFs de data/interim/ e nomes civis de quem tem nome
-    social. Devolve a lista de problemas (vazia se nada vazou)."""
+    """Procura em data/processed/ e site/dist/ CPFs de data/interim/ e nomes civis de
+    quem tem nome social. Devolve a lista de problemas (vazia se nada vazou)."""
     cand = pd.read_parquet(cfg.dir_interim / "candidaturas.parquet")
     cpfs = set(cand["cpf"].dropna())
     atual = cand[cand["ano"] == cfg.eleicao.ano]
@@ -311,13 +311,21 @@ def checar_privacidade(cfg: Config) -> list[str]:
     )
     civis = set(atual.loc[protegido, "nome_civil"].dropna())
     problemas = []
-    for arquivo in sorted(cfg.dir_processed.rglob("*")):
-        if not arquivo.is_file():
+    publicos = [cfg.dir_processed, cfg.raiz / "site" / "dist"]
+    arquivos = sorted(p for pasta in publicos if pasta.exists() for p in pasta.rglob("*"))
+    for arquivo in arquivos:
+        if not arquivo.is_file() or arquivo.suffix not in {
+            ".json",
+            ".csv",
+            ".html",
+            ".xml",
+            ".txt",
+        }:
             continue
         texto = arquivo.read_text(encoding="utf-8")
         onze = set(re.findall(r"(?<!\d)\d{11}(?!\d)", texto))
         if onze & cpfs:
             problemas.append(f"{arquivo}: {len(onze & cpfs)} CPF(s)")
-        if arquivo.suffix == ".json" and any(nome in texto for nome in civis):
+        if arquivo.suffix in {".json", ".html"} and any(nome in texto for nome in civis):
             problemas.append(f"{arquivo}: nome civil de candidatura com nome social")
     return problemas

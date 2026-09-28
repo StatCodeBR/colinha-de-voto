@@ -1,0 +1,3 @@
+*
+!site/dist/
+!deploy/nginx.conf

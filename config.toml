@@ -18,6 +18,9 @@ anos_historico = [2024, 2022, 2020, 2018, 2016, 2014]
 cargos = ["PRESIDENTE", "GOVERNADOR", "SENADOR", "DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"]
 # Vagas na colinha por cargo (2026 elege dois senadores por UF).
 vagas_colinha = { "DEPUTADO FEDERAL" = 1, "DEPUTADO ESTADUAL" = 1, "DEPUTADO DISTRITAL" = 1, "SENADOR" = 2, "GOVERNADOR" = 1, "PRESIDENTE" = 1 }
+# Ordem de votação na urna (colinha e página da UF). Usada a de 2018, que também teve
+# duas vagas de senador. TODO: confirmar no TSE a ordem de 2026 (tarefa 3.3 da change 02).
+ordem_urna = ["DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL", "SENADOR", "GOVERNADOR", "PRESIDENTE"]
 
 [processamento]
 ufs = "todas"            # ou uma lista, ex.: ["RR", "SP"]

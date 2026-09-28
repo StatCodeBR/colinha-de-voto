@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR" class="sem-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}{{ projeto.nome }}{% endblock %}</title>
+<meta name="description" content="{% block descricao %}{{ projeto.subtitulo }}. Dados abertos do TSE, sem anúncios.{% endblock %}">
+<link rel="canonical" href="{{ url_canonica }}">
+<meta property="og:site_name" content="{{ projeto.nome }}">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ url_canonica }}">
+<meta property="og:title" content="{{ self.titulo() }}">
+<meta property="og:description" content="{{ self.descricao() }}">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preload" href="/static/fontes/atkinson-hyperlegible-next.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/css/site.css?v={{ versao }}">
+{# Único script inline; o hash dele está na CSP de deploy/nginx.conf. Mudou? Recalcule. #}
+<script>document.documentElement.className = "js";</script>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+  <a class="marca" href="/">{{ projeto.nome }}</a>
+  <a class="topo-colinha" href="/colinha/">Minha colinha</a>
+</header>
+<main id="conteudo">
+{% block conteudo %}{% endblock %}
+</main>
+<footer class="rodape">
+  <p>Feito pela <a href="{{ projeto.url_statcode }}">StatCode</a> com dados abertos do TSE.</p>
+  <p>
+    <a href="/metodologia/">Como fizemos</a> ·
+    <a href="mailto:{{ email_erro }}?subject={{ ('Erro no ' ~ projeto.nome)|quote }}">Encontrou um erro?</a>
+    {% if projeto.repositorio %} · <a href="{{ projeto.repositorio }}">Código aberto</a>{% endif %}
+  </p>
+  <p class="suave">Sem anúncios. Dados atualizados em {{ atualizado_em }}.</p>
+</footer>
+<script src="/static/js/colinha.js?v={{ versao }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

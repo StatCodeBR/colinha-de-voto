@@ -81,14 +81,47 @@ just servir                   # abre o site em http://localhost:8000
 just tudo                     # pipeline completo, todas as UFs
 just atualizar                # rebaixa, reprocessa e regenera (todo dia até a eleição)
 just check                    # lint + testes + validação das specs
-just publicar                 # deploy (configurado na change 02)
+just privacidade              # nenhum CPF/nome civil protegido nas saídas e no site
+just publicar                 # imagem nginx + deploy no Dokploy
 ```
-
-Os comandos `just` que chamam `colinha` passam a funcionar depois que a change 01 criar
-o pacote.
 
 Comandos extras no Claude Code: `/atualizar-dados`, `/revisar-vinculos RR` e
 `/checar-neutralidade`.
+
+## Publicação e ciclo diário até a eleição
+
+O site roda no servidor da StatCode, gerenciado pelo Dokploy, como uma imagem nginx com
+o site já gerado (design D9 da change 02). Quem publica gera o site na própria máquina,
+confere e só então envia.
+
+Configuração, uma vez só:
+
+1. Crie o `.env` na raiz (fica fora do git):
+   ```bash
+   COLINHA_IMAGEM=<registry>/statcode/colinha-do-voto
+   DOKPLOY_WEBHOOK=<URL do webhook de deploy da aplicação no Dokploy>
+   ```
+2. `docker login <registry>`.
+3. No Dokploy, a aplicação usa o provider Docker com a imagem
+   `$COLINHA_IMAGEM:latest`, porta 80, e o domínio `colinha.statcode.com.br` com HTTPS.
+
+Todo dia, até 4 de outubro:
+
+```bash
+just atualizar       # rebaixa os dados do TSE, reprocessa e regenera o site
+just privacidade     # confere que nada pessoal vazou
+just servir          # abra três páginas no celular (largura estreita) e confira
+just publicar        # monta a imagem, envia ao registry e dispara o redeploy
+```
+
+Se o `just atualizar` parar com erro, o TSE mudou algo (situação nova, coluna nova). O
+site anterior continua no ar; registre em `docs/fontes.md` e ajuste antes de publicar.
+Vínculos novos em revisão aparecem em `data/processed/revisao_vinculos.csv`
+(`/revisar-vinculos SP` no Claude Code).
+
+Para voltar à versão anterior: cada publicação gera uma tag de data e hora, anotada em
+`deploy/publicacoes.log`. No Dokploy, troque a imagem da aplicação para a tag anterior
+(`$COLINHA_IMAGEM:AAAAMMDD-HHMM`) e faça o redeploy.
 
 ## Onde mudar o quê
 

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Candidaturas em {{ uf_nome }} · {{ projeto.nome }}{% endblock %}
+{% block descricao %}Candidaturas da eleição de {{ ano }} em {{ uf_nome }}, na ordem da urna, com trajetória eleitoral e dados declarados ao TSE.{% endblock %}
+{% block conteudo %}
+<div data-uf-atual="{{ uf }}" data-uf-nome="{{ uf_nome }}" hidden></div>
+<h1>Candidaturas em {{ uf_nome }}</h1>
+<p class="intro">Os cargos aparecem na ordem em que você vai votar na urna.</p>
+<ol class="lista-cargos">
+{% for c in cargos %}
+  <li><a href="{{ c.url }}">{{ c.texto }}</a> <span class="suave">{{ c.aptas }} candidaturas aptas{% if c.vagas > 1 %}, {{ c.vagas }} votos{% endif %}</span></li>
+{% endfor %}
+</ol>
+<p><a href="/colinha/?uf={{ uf }}">Ver minha colinha de {{ uf_nome }}</a></p>
+{% endblock %}

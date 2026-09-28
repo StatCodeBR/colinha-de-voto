@@ -32,9 +32,19 @@ arquivos por deploy.
 `/metodologia/`. UF e cargo em minúsculas, cargo em slug (`deputado-estadual`).
 
 ### D3. JavaScript puro e progressivo
-As listas são HTML completo; o JavaScript acrescenta busca instantânea e filtros usando o
-`indice.json` da UF. Busca ignora acentos e maiúsculas e aceita número. Sem framework,
-sem dependências, um arquivo por funcionalidade.
+As listas são HTML completo; o JavaScript acrescenta busca instantânea e filtros sobre
+as próprias linhas da lista, que trazem os campos de filtro em atributos `data-*`. Busca
+ignora acentos e maiúsculas e aceita número e partido. Sem framework, sem dependências,
+um arquivo por funcionalidade (`busca.js`, `colinha.js`, `compartilhar.js`).
+
+Alternativa considerada: filtrar sobre o `indice.json` da UF, como previsto no início.
+Trocada na implementação porque a lista estática já tem todas as linhas do cargo: filtrar
+o HTML evita um segundo download e mantém um único lugar com os dados exibidos. O
+`indice.json` continua publicado em `/dados/{UF}.json`, usado pela colinha para conferir
+candidaturas guardadas.
+
+O único script inline (marca `html.js`) tem o hash na Content-Security-Policy do nginx
+(D9); CSS e JS levam `?v=<hash do conteúdo>` para permitir cache longo.
 
 ### D4. Direção visual
 O assunto é a urna eletrônica e o papelzinho anotado que o eleitor leva para votar. O
@@ -106,12 +116,14 @@ declarado. Botões dizem o que fazem: "Adicionar à colinha", "Tirar da colinha"
 tirar o filtro de partido."
 
 ### D6. Colinha
-Estado em `localStorage` com a chave `colinha:v1:{uf}`, sempre dentro de `try/catch`;
+Estado em `localStorage` com a chave `colinha:v1:{uf}` e, para presidente, `colinha:v1:BR`
+(a escolha de presidente vale para a colinha de todas as UFs), sempre dentro de `try/catch`;
 se o armazenamento falhar, a colinha funciona só enquanto a página estiver aberta e
-avisa isso. Vagas por cargo vêm do `config.toml`. Ordem de exibição: a ordem oficial de
-votação na urna em 2026 (confirmar no TSE; em 2018, com duas vagas de senador, foi
-deputado federal, deputado estadual ou distrital, senador 1ª vaga, senador 2ª vaga,
-governador, presidente). Impressão com CSS de impressão: dígitos grandes, cabe em meia
+avisa isso. Vagas por cargo e ordem de votação vêm do `config.toml` (`vagas_colinha` e
+`ordem_urna`). Ordem usada: a de 2018, que também teve duas vagas de senador (deputado
+federal, deputado estadual ou distrital, senador 1ª vaga, senador 2ª vaga, governador,
+presidente). O site do TSE bloqueia acesso automatizado; a ordem de 2026 precisa ser
+confirmada por uma pessoa (tarefa 3.3). Impressão com CSS de impressão: dígitos grandes, cabe em meia
 folha A4.
 
 ### D7. Privacidade e terceiros
@@ -122,6 +134,12 @@ só contagem agregada de páginas, sem eventos ligados a candidatos e sem cookie
 Página de candidato abaixo de 60 KB transferidos (sem fontes em cache). `indice.json` da
 maior UF abaixo de 250 KB com gzip. Fontes: só os pesos usados, em woff2, com
 `font-display: swap`.
+
+Medido em 28/09/2026, todas as UFs: maior página de candidato 9,8 KB (2,6 KB com gzip;
+redes sociais limitadas a 20 links exibidos, mesmo limite para todos); maior
+`indice.json` (SP) 49 KB com gzip; CSS e JS 5,7 KB com gzip; fontes 52 KB (variáveis,
+subconjunto latino). A página mais pesada é a lista de deputado estadual de SP: 1,5 MB de
+HTML, 101 KB com gzip. 20.228 páginas geradas em 13 s.
 
 ### D9. Publicação
 O site roda no servidor da StatCode, gerenciado pelo Dokploy, em
@@ -141,6 +159,14 @@ Alternativas consideradas:
 - rsync de `site/dist/` para um volume servido por nginx: rejeitada porque a troca não é
   atômica e não deixa histórico de versões para voltar atrás.
 - Build type "Static" do Dokploy: rejeitado porque não permite ajustar gzip, cache e 404.
+
+Implementação: `Dockerfile` (nginx:1.28-alpine) e `deploy/nginx.conf` com gzip, cache de
+30 dias em `/static/` (CSS e JS com `?v=`), 5 minutos no resto, 404 própria e cabeçalhos
+de segurança, incluindo Content-Security-Policy que só permite recursos do próprio
+domínio. `just publicar` roda `deploy/publicar.sh`: confere privacidade, monta a imagem
+com tag `AAAAMMDD-HHMM` e `latest`, envia ao registry, chama o webhook e anota a tag em
+`deploy/publicacoes.log`. Docker vem do sistema, não do `flake.nix`: o daemon não roda
+dentro do shell do Nix.
 
 ## Risks / Trade-offs
 

@@ -37,6 +37,7 @@ class Eleicao:
     anos_historico: tuple[int, ...]
     cargos: tuple[str, ...]
     vagas_colinha: dict[str, int]
+    ordem_urna: tuple[str, ...]
 
     @property
     def anos(self) -> tuple[int, ...]:
@@ -141,7 +142,15 @@ def carregar(caminho: Path | None = None) -> Config:
         anos_historico=tuple(_chave(e, "eleicao", "anos_historico", list)),
         cargos=tuple(_chave(e, "eleicao", "cargos", list)),
         vagas_colinha=dict(_chave(e, "eleicao", "vagas_colinha", dict)),
+        ordem_urna=tuple(_chave(e, "eleicao", "ordem_urna", list)),
     )
+    if set(eleicao.ordem_urna) != set(eleicao.cargos) or set(eleicao.vagas_colinha) != set(
+        eleicao.cargos
+    ):
+        raise ErroConfig(
+            "config.toml: 'eleicao.ordem_urna' e 'eleicao.vagas_colinha' precisam ter os "
+            "mesmos cargos de 'eleicao.cargos'"
+        )
 
     pr = _secao(dados, "processamento")
     uf_dev = _chave(pr, "processamento", "uf_desenvolvimento", str)

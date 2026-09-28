@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from colinha import coleta, config, saida, tse, vinculo
+from colinha import coleta, config, saida, site, tse, vinculo
 
 
 def _ufs(cfg: config.Config, uf: str | None) -> tuple[str, ...]:
@@ -44,12 +44,17 @@ def cmd_checar_privacidade(cfg: config.Config, args: argparse.Namespace) -> None
         raise tse.ErroDados(
             f"{len(problemas)} arquivo(s) com dados pessoais em {cfg.dir_processed}"
         )
-    print(f"Nenhum CPF nem nome civil protegido em {cfg.dir_processed}")
+    print("Nenhum CPF nem nome civil protegido em data/processed/ nem em site/dist/")
+
+
+def cmd_site(cfg: config.Config, args: argparse.Namespace) -> None:
+    site.gerar(cfg)
 
 
 def cmd_tudo(cfg: config.Config, args: argparse.Namespace) -> None:
     cmd_baixar(cfg, args)
     cmd_processar(cfg, args)
+    cmd_site(cfg, args)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -77,7 +82,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("checar-privacidade", help="procura dados pessoais nas saídas públicas")
     p.set_defaults(func=cmd_checar_privacidade, uf=None)
 
-    p = sub.add_parser("tudo", help="baixar + processar")
+    p = sub.add_parser("site", help="gera o site estático em site/dist/")
+    p.set_defaults(func=cmd_site, uf=None)
+
+    p = sub.add_parser("tudo", help="baixar + processar + site")
     com_uf(p)
     com_forcar(p)
     p.set_defaults(func=cmd_tudo)
@@ -88,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
         _ufs(cfg, args.uf)
         _preparar_pastas(cfg)
         args.func(cfg, args)
-    except (config.ErroConfig, coleta.ErroDownload, tse.ErroDados) as e:
+    except (config.ErroConfig, coleta.ErroDownload, tse.ErroDados, site.textos.ErroTexto) as e:
         print(f"erro: {e}", file=sys.stderr)
         return 1
     return 0

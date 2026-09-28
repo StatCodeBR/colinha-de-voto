@@ -32,7 +32,7 @@ processar *args:
 camara *args:
     uv run colinha camara {{args}}
 
-# Confere que nenhum CPF ou nome civil protegido aparece em data/processed/
+# Confere que nenhum CPF ou nome civil protegido aparece em data/processed/ e site/dist/
 privacidade:
     uv run colinha checar-privacidade
 
@@ -87,5 +87,4 @@ limpar-tudo: limpar
 
 # Publica o site no subdomínio da StatCode
 publicar: site
-    @echo "Deploy ainda não configurado: implementar na tarefa 6.2 da change 02-add-site-colinha."
-    @exit 1
+    ./deploy/publicar.sh

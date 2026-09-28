@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import numero, botao_colinha %}
+{% block titulo %}Candidaturas a {{ cargo_generico }} em {{ uf_nome }} · {{ projeto.nome }}{% endblock %}
+{% block descricao %}{{ aptas }} candidaturas aptas a {{ cargo_generico }} em {{ uf_nome }} na eleição de {{ ano }}, em ordem alfabética, com trajetória eleitoral.{% endblock %}
+{% block conteudo %}
+<div data-uf-atual="{{ uf }}" data-uf-nome="{{ uf_nome }}" hidden></div>
+<p class="migalha"><a href="/{{ uf|lower }}/">{{ uf_nome }}</a></p>
+<h1>Candidaturas a {{ cargo_generico }}{% if cargo != "PRESIDENTE" %} em {{ uf_nome }}{% endif %}</h1>
+<p class="intro">Em ordem alfabética pelo nome de urna. Toque no nome para ver a trajetória e os dados declarados.</p>
+
+<form class="filtros" id="filtros" hidden>
+  <label for="f-texto">Buscar por nome, número ou partido</label>
+  <input id="f-texto" type="search" autocomplete="off">
+  <details class="mais-filtros">
+  <summary>Mais filtros</summary>
+  <div class="filtros-linha">
+    <label for="f-genero">Gênero</label>
+    <select id="f-genero">
+      <option value="">Todos</option>
+      <option value="FEMININO">Candidatas mulheres</option>
+      <option value="MASCULINO">Candidatos homens</option>
+    </select>
+  </div>
+  <div class="filtros-linha">
+    <label for="f-partido">Partido</label>
+    <select id="f-partido">
+      <option value="">Todos</option>
+      {% for p in partidos %}<option>{{ p }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="filtros-linha">
+    <label for="f-historico">Histórico</label>
+    <select id="f-historico">
+      <option value="">Todos</option>
+      <option value="eleito">Já foi eleito(a)</option>
+      <option value="concorreu">Já concorreu, sem ter sido eleito(a)</option>
+      <option value="sem_registro">Nenhuma candidatura encontrada {{ janela }}</option>
+    </select>
+  </div>
+  <label class="caixa"><input id="f-reeleicao" type="checkbox"> Só quem foi eleito(a) para este cargo em {{ ano_mandato }}</label>
+  <label class="caixa"><input id="f-inaptas" type="checkbox"> Mostrar candidaturas que não estão aptas</label>
+  </details>
+</form>
+
+<p id="contador" class="contador" aria-live="polite"></p>
+<p id="vazio" class="vazio" hidden></p>
+
+<ul class="candidatos" id="candidatos">
+{% for c in linhas %}
+  <li class="candidato{% if not c.apto %} inapta{% endif %}"
+      data-busca="{{ c.busca }}" data-genero="{{ c.genero }}" data-partido="{{ c.partido }}"
+      data-historico="{{ c.historico }}" data-reeleicao="{{ 'sim' if c.reeleicao else 'nao' }}"
+      data-apto="{{ 'sim' if c.apto else 'nao' }}">
+    {{ numero(c.numero) }}
+    <div class="candidato-texto">
+      <a class="candidato-nome" href="{{ c.url }}">{{ c.nome_urna }}</a>
+      <span class="partido">{{ c.partido }}</span>
+      <span class="etiqueta">{{ c.etiqueta }}</span>
+      {% if c.reeleicao %}<span class="etiqueta">{{ c.reeleicao }}</span>{% endif %}
+      {% if c.situacao %}<span class="situacao">{{ c.situacao }}</span>{% endif %}
+    </div>
+    {{ botao_colinha(c) }}
+  </li>
+{% endfor %}
+</ul>
+{% endblock %}
+{% block scripts %}<script src="/static/js/busca.js?v={{ versao }}" defer></script>{% endblock %}

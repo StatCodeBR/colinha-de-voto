@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Minha colinha · {{ projeto.nome }}{% endblock %}
+{% block descricao %}Monte sua colinha com os números dos seus candidatos e leve para a urna.{% endblock %}
+{% block conteudo %}
+<h1>Minha colinha</h1>
+<p class="lembrete">O celular não pode entrar na cabine de votação. Imprima ou anote seus números.</p>
+<noscript><p>A colinha precisa de JavaScript ligado no navegador. Sem ele, anote os números à mão a partir das páginas dos candidatos.</p></noscript>
+<p id="colinha-aviso" class="aviso" hidden></p>
+<div id="colinha" data-config='{{ config_colinha|tojson }}'></div>
+<p class="acoes-colinha" hidden id="colinha-acoes">
+  <button type="button" id="imprimir">Imprimir colinha</button>
+  <button type="button" id="apagar" class="botao-secundario">Apagar colinha</button>
+</p>
+<p class="suave">Sua colinha fica guardada só neste navegador. Nada é enviado para a StatCode nem para ninguém.</p>
+{% endblock %}

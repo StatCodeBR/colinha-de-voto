@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Como fizemos · {{ projeto.nome }}{% endblock %}
+{% block descricao %}Fontes, datas, método e limitações dos dados do {{ projeto.nome }}.{% endblock %}
+{% block conteudo %}
+<h1>Como fizemos</h1>
+<p>O {{ projeto.nome }} usa só dados abertos oficiais do Tribunal Superior Eleitoral (TSE). Todos os candidatos aparecem com o mesmo formato, em ordem alfabética. Não damos notas, não fazemos rankings e não recomendamos candidatos.</p>
+
+<h2>Fontes e datas</h2>
+<ul>
+{% for f in fontes %}<li><a href="{{ f.url }}">{{ f.nome }}</a>, extraído em {{ f.extraido_em }}.</li>
+{% endfor %}
+</ul>
+<p>Até a eleição, os dados são baixados de novo e o site é atualizado todos os dias.</p>
+
+<h2>Trajetória eleitoral</h2>
+<p>Procuramos cada candidatura de {{ ano }} nas eleições de {{ cobertura|min }} a {{ cobertura|max }}, gerais e municipais. O TSE não publica um identificador único da pessoa entre eleições, então ligamos as candidaturas assim:</p>
+<ul>
+  <li>pelo CPF, quando ele aparece nos dois anos e o nome ou a data de nascimento também coincidem;</li>
+  <li>pelo nome completo e pela data de nascimento, quando falta o CPF (como em {{ cobertura|max }}) e essa combinação é única.</li>
+</ul>
+<p>Casos com dúvida, como homônimos ou dados incompletos, não aparecem no site até serem conferidos por uma pessoa da equipe. Por isso, "Nenhuma candidatura encontrada" quer dizer que não encontramos registro com segurança nesse período, e não que é a primeira candidatura.</p>
+<p>Hoje, {{ resumo.total.vinculos.get("confirmado", 0) }} ligações entre eleições estão confirmadas e {{ resumo.total.vinculos.get("provavel", 0) + resumo.total.vinculos.get("ambiguo", 0) }} estão em verificação.</p>
+
+<h2>Situação da candidatura</h2>
+<p>Candidaturas aptas são as que estão na urna e podem receber votos, inclusive as que aguardam julgamento de recurso. Nesses casos, a validade dos votos depende da decisão final da Justiça Eleitoral, e a página do candidato explica a situação.</p>
+<p>Quem aparece como eleito(a) "para este cargo" foi eleito(a) para o mesmo cargo, no mesmo estado, na eleição anterior (em 2018 para senador, cujo mandato é de 8 anos). Suplentes que assumiram o mandato não aparecem assim, porque o TSE os registra como suplentes.</p>
+
+<h2>Limitações</h2>
+<ul>
+  <li>Mudanças de nome podem fazer uma candidatura anterior não ser encontrada.</li>
+  <li>Os dados declarados (bens, ocupação, escolaridade) são os que a própria candidatura informou ao TSE.</li>
+  <li>Os endereços de redes sociais chegam do TSE em letras maiúsculas; alguns links podem não abrir.</li>
+  <li>A situação das candidaturas muda até a eleição. Confira a data de atualização.</li>
+</ul>
+
+<h2>Encontrou um erro?</h2>
+<p>Escreva para <a href="mailto:{{ email_erro }}">{{ email_erro }}</a> com o endereço da página. Corrigimos e atualizamos o site.</p>
+
+<h2>Quem faz</h2>
+<p>O {{ projeto.nome }} é feito pela <a href="{{ projeto.url_statcode }}">StatCode</a>, de forma gratuita e apartidária. O site não tem anúncios, não usa cookies e não guarda suas escolhas: a colinha fica só no seu navegador.</p>
+{% endblock %}
