@@ -160,4 +160,5 @@ URLs, contagens por UF, tempo de processamento.
 | 28/09/2026 | DivulgaCandContas | API devolve 403 para acesso automatizado | tarefa 6.5 feita por pessoa no navegador |
 | 28/09/2026 | saídas | Todas as UFs: 46 s; 20.093 JSON (84 MB); maior `indice.json` SP 490 KB (49 KB gzip); detalhe típico ~3 KB, maior 49 KB (912 links) | dentro do orçamento do design 02 (D8) |
 | 28/09/2026 | saídas RR | Dep. estadual 250 (233 aptas), dep. federal 108 (102), governador 5 (5), senador 13 (13) | comparar com o DivulgaCandContas (6.5) |
+| 28/09/2026 | DivulgaCandContas (conferência humana, RR) | Governador 5, senador 13, dep. federal 108, dep. estadual 250, vice-governador 6, 1º suplente 15, 2º suplente 16; total 413. Bate com a pipeline (376 titulares + 37 vices e suplentes) | tarefa 6.5 da change 01 concluída |
 | 28/09/2026 | consulta_cand 2026 | 20.987 candidaturas, 20.063 nos cargos titulares; 18.984 aptas e 1.079 inaptas | página por candidatura: ~20 mil arquivos |
