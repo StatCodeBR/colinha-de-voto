@@ -1,0 +1,24 @@
+{% macro numero(n, grande=false) -%}
+<span class="numero{% if grande %} numero-grande{% endif %}" role="img" aria-label="número {{ n }}">
+{%- for digito in n %}<span class="digito" aria-hidden="true">{{ digito }}</span>{% endfor -%}
+</span>
+{%- endmacro %}
+
+{% macro botao_colinha(c) -%}
+<button type="button" class="botao-colinha" hidden
+  data-colinha
+  data-uf="{{ c.chave_colinha if c.chave_colinha is defined else c.uf }}"
+  data-id="{{ c.id }}"
+  data-numero="{{ c.numero }}"
+  data-nome="{{ c.nome_urna }}"
+  data-partido="{{ c.partido }}"
+  data-cargo="{{ c.cargo }}"
+  data-rotulo="{{ rotulos[c.cargo] }}"
+  data-vagas="{{ vagas[c.cargo] }}"
+  data-url="{{ c.url }}">Adicionar à colinha</button>
+{%- endmacro %}
+
+{% macro fonte(f) -%}
+<p class="fonte">{{ f.texto }}
+({% for l in f.links %}<a href="{{ l.url }}">{{ l.nome }}</a>{% if not loop.last %}; {% endif %}{% endfor %}).</p>
+{%- endmacro %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>{{ projeto.subtitulo }}</h1>
+<p class="intro">Veja quem são os candidatos da eleição de {{ ano }}, se já concorreram antes e o que declararam ao TSE. Depois, monte sua colinha com os números para levar à urna, onde o celular não pode entrar.</p>
+<p id="atalho-uf" hidden></p>
+<h2>Escolha seu estado</h2>
+<ul class="lista-ufs">
+{% for sigla, nome, gerada in ufs %}
+  <li>{% if gerada %}<a href="/{{ sigla|lower }}/">{{ nome }}</a>{% else %}<span class="suave">{{ nome }}</span>{% endif %}</li>
+{% endfor %}
+</ul>
+<p class="suave">Todas as informações vêm dos dados abertos do Tribunal Superior Eleitoral (TSE). <a href="/metodologia/">Veja como fizemos</a>.</p>
+{% endblock %}

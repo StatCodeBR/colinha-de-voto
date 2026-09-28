@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import numero, botao_colinha, fonte %}
+{% block titulo %}{{ c.titulo }} · {{ projeto.nome }}{% endblock %}
+{% block descricao %}{{ c.descricao }}{% endblock %}
+{% block conteudo %}
+{% if c.uf != "BR" %}<div data-uf-atual="{{ c.uf }}" data-uf-nome="{{ c.uf_nome }}" hidden></div>{% endif %}
+<section class="identificacao" aria-labelledby="nome">
+  <p class="cargo">{{ c.cabecalho }}</p>
+  <h1 id="nome">{{ c.nome_urna }}</h1>
+  {{ numero(c.numero, grande=true) }}
+  <p class="partido">{{ c.partido }}{% if c.federacao %} · Federação {{ c.federacao }}{% endif %}</p>
+  {% if c.nome_exibido != c.nome_urna %}<p class="suave">Nome: {{ c.nome_exibido }}</p>{% endif %}
+  <p class="situacao{% if not c.apto %} situacao-alerta{% endif %}">{{ c.situacao }}</p>
+  {% if c.reeleicao %}<p class="etiqueta">{{ c.reeleicao }}</p>{% endif %}
+  {{ botao_colinha(c) }}
+</section>
+
+<section aria-labelledby="t-trajetoria">
+  <h2 id="t-trajetoria">Trajetória eleitoral</h2>
+  {% if c.trajetoria %}
+  <ol class="trajetoria">
+    {% for t in c.trajetoria %}
+    <li><span class="ano">{{ t.ano }}</span> <span>{{ t.cargo }}, {{ t.local }}. {{ t.partido }}. {{ t.resultado }}.</span></li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+  {% if c.aviso_trajetoria %}<p>{{ c.aviso_trajetoria }}</p>{% endif %}
+  <p class="suave">{{ c.cobertura }}</p>
+  {{ fonte(c.fonte_trajetoria) }}
+</section>
+
+<section aria-labelledby="t-dados">
+  <h2 id="t-dados">Dados declarados ao TSE</h2>
+  <dl class="dados">
+    {% for rotulo, valor in c.perfil %}<dt>{{ rotulo }}</dt><dd>{{ valor }}</dd>{% endfor %}
+  </dl>
+  {{ fonte(c.fonte_candidatura) }}
+  <h3>Redes sociais informadas ao TSE</h3>
+  {% if c.redes %}
+  <ul class="redes">
+    {% for r in c.redes %}<li><a href="{{ r.href }}" rel="nofollow noopener">{{ r.texto }}</a></li>{% endfor %}
+  </ul>
+  {% endif %}
+  {% if c.redes_restantes %}<p class="suave">E mais {{ c.redes_restantes }} {{ "endereço informado" if c.redes_restantes == 1 else "endereços informados" }} ao TSE.</p>{% endif %}
+  {% if not c.redes and not c.redes_restantes %}<p>Nenhuma rede social informada.</p>{% endif %}
+  {{ fonte(c.fonte_redes) }}
+</section>
+
+<section class="acoes" aria-label="Compartilhar e reportar erro">
+  <p><a class="compartilhar" data-compartilhar data-titulo="{{ c.titulo }}" href="https://wa.me/?text={{ (c.titulo ~ ' ' ~ url_canonica)|quote }}">Compartilhar</a></p>
+  <p><a href="mailto:{{ email_erro }}?subject={{ ('Erro na página ' ~ c.uf ~ ' ' ~ c.numero)|quote }}&amp;body={{ ('Página: ' ~ url_canonica ~ '\n\nO que está errado:\n')|quote }}">Encontrou um erro?</a></p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/compartilhar.js?v={{ versao }}" defer></script>{% endblock %}

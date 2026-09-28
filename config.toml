@@ -4,10 +4,10 @@
 [projeto]
 nome = "Colinha do Voto"
 subtitulo = "Conheça quem você vai votar antes de ir à urna"
-url_base = "https://colinha.statcode.com.br"   # TODO: confirmar subdomínio e domínio da StatCode
+url_base = "https://colinha.statcode.com.br"
 email_contato = "contato@statcode.com.br"      # TODO: confirmar (usado no "Encontrou um erro?")
 url_statcode = "https://statcode.com.br"       # TODO: confirmar
-repositorio = ""                               # TODO: link do código aberto, se for público
+repositorio = "https://github.com/StatCodeBR/colinha-de-voto"
 
 [eleicao]
 ano = 2026
@@ -18,6 +18,9 @@ anos_historico = [2024, 2022, 2020, 2018, 2016, 2014]
 cargos = ["PRESIDENTE", "GOVERNADOR", "SENADOR", "DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"]
 # Vagas na colinha por cargo (2026 elege dois senadores por UF).
 vagas_colinha = { "DEPUTADO FEDERAL" = 1, "DEPUTADO ESTADUAL" = 1, "DEPUTADO DISTRITAL" = 1, "SENADOR" = 2, "GOVERNADOR" = 1, "PRESIDENTE" = 1 }
+# Ordem de votação na urna (colinha e página da UF). Usada a de 2018, que também teve
+# duas vagas de senador. TODO: confirmar no TSE a ordem de 2026 (tarefa 3.3 da change 02).
+ordem_urna = ["DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL", "SENADOR", "GOVERNADOR", "PRESIDENTE"]
 
 [processamento]
 ufs = "todas"            # ou uma lista, ex.: ["RR", "SP"]

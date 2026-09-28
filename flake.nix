@@ -34,6 +34,7 @@
               pkgs.nodejs # só para o OpenSpec (npm)
               pkgs.git
               pkgs.unzip
+              pkgs.gh # releases do site (just publicar)
             ];
 
             shellHook = ''

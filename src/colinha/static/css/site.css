@@ -1,0 +1,529 @@
+/* Colinha do Voto. Tokens do design.md da change 02 (D4). */
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("/static/fontes/atkinson-hyperlegible-next.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("/static/fontes/atkinson-hyperlegible-mono.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+:root {
+  --papel: #ffffff;
+  --cinza-urna: #e9ecef;
+  --texto: #1a1c1f;
+  --texto-suave: #555b64;
+  --tinta: #2340a8;
+  --confirma: #1b7f3b;
+  --corrige: #b4530f;
+  --pauta: #c9d6ea;
+
+  --fonte: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --fonte-numero: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  --corpo: 1.125rem; /* 18px */
+  --escala: 1.25;
+  --h3: calc(var(--corpo) * var(--escala));
+  --h2: calc(var(--h3) * var(--escala));
+  --h1: calc(var(--h2) * var(--escala));
+  --espaco: 1rem;
+  --raio: 6px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--fonte);
+  font-size: 100%;
+  color: var(--texto);
+  background: var(--papel);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: var(--corpo);
+  line-height: 1.5;
+}
+
+main,
+.topo,
+.rodape {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 var(--espaco);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 1.5em 0 0.5em;
+}
+
+h1 {
+  font-size: var(--h1);
+  margin-top: 0.75em;
+}
+
+h2 {
+  font-size: var(--h2);
+}
+
+h3 {
+  font-size: var(--h3);
+}
+
+p,
+li,
+dd {
+  max-width: 70ch;
+}
+
+a {
+  color: var(--tinta);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--tinta);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.suave,
+.fonte,
+.migalha {
+  color: var(--texto-suave);
+}
+
+.fonte {
+  font-size: 0.95rem;
+}
+
+.intro {
+  font-size: calc(var(--corpo) * 1.05);
+}
+
+.pular {
+  position: absolute;
+  left: -999px;
+}
+
+.pular:focus {
+  left: var(--espaco);
+  top: var(--espaco);
+  background: var(--papel);
+  padding: 0.5rem;
+  z-index: 1;
+}
+
+/* Cabeçalho e rodapé */
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espaco);
+  padding-top: var(--espaco);
+  padding-bottom: var(--espaco);
+  border-bottom: 1px solid var(--cinza-urna);
+}
+
+.marca {
+  font-weight: 700;
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.rodape {
+  margin-top: 3rem;
+  padding-top: var(--espaco);
+  padding-bottom: 2rem;
+  border-top: 1px solid var(--cinza-urna);
+  font-size: 0.95rem;
+}
+
+/* Número em caixinhas, como na tela da urna */
+
+.numero {
+  display: inline-flex;
+  gap: 0.2em;
+  font-family: var(--fonte-numero);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.digito {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0.15em 0;
+  text-align: center;
+  background: var(--cinza-urna);
+  border: 1px solid #8a9099;
+  border-radius: 3px;
+}
+
+.numero-grande {
+  font-size: 2rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* Listas */
+
+.lista-ufs {
+  columns: 2 12rem;
+  padding-left: 1.2rem;
+}
+
+.lista-ufs li,
+.lista-cargos li {
+  margin-bottom: 0.5rem;
+}
+
+.lista-cargos a {
+  font-size: var(--h3);
+  font-weight: 700;
+}
+
+.lista-cargos .suave {
+  display: block;
+}
+
+.candidatos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.candidato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem var(--espaco);
+  padding: var(--espaco) 0;
+  border-bottom: 1px solid var(--cinza-urna);
+}
+
+.candidato-texto {
+  flex: 1 1 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.candidato-nome {
+  font-weight: 700;
+}
+
+.etiqueta {
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
+
+.situacao {
+  font-size: 0.95rem;
+}
+
+.situacao-alerta {
+  border-left: 4px solid var(--corrige);
+  padding-left: 0.5rem;
+}
+
+html.js .inapta {
+  display: none;
+}
+
+html.js .candidatos.com-inaptas .inapta {
+  display: flex;
+}
+
+/* Filtros */
+
+.filtros {
+  display: grid;
+  gap: 0.5rem;
+  margin: var(--espaco) 0;
+  padding: var(--espaco);
+  background: var(--cinza-urna);
+  border-radius: var(--raio);
+}
+
+.filtros label {
+  font-weight: 700;
+}
+
+.filtros .caixa {
+  font-weight: 400;
+}
+
+.mais-filtros summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--tinta);
+  padding: 0.25rem 0;
+}
+
+.mais-filtros > * + * {
+  margin-top: 0.5rem;
+}
+
+.filtros-linha {
+  display: grid;
+  gap: 0.25rem;
+}
+
+input[type="search"],
+select {
+  font: inherit;
+  padding: 0.5rem;
+  border: 1px solid #8a9099;
+  border-radius: var(--raio);
+  background: var(--papel);
+  color: var(--texto);
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+}
+
+.contador {
+  font-weight: 700;
+}
+
+.vazio {
+  padding: var(--espaco);
+  border: 1px dashed #8a9099;
+  border-radius: var(--raio);
+}
+
+/* Botões */
+
+button,
+.compartilhar {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: var(--raio);
+  border: 2px solid transparent;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.botao-colinha,
+#imprimir {
+  background: var(--confirma);
+  color: #ffffff;
+}
+
+.botao-colinha[aria-pressed="true"],
+#apagar {
+  background: var(--corrige);
+  color: #ffffff;
+}
+
+.compartilhar {
+  display: inline-block;
+  background: var(--papel);
+  color: var(--tinta);
+  border-color: var(--tinta);
+  text-decoration: none;
+}
+
+/* Página do candidato */
+
+.identificacao .cargo {
+  margin: 1rem 0 0;
+  color: var(--texto-suave);
+}
+
+.identificacao h1 {
+  margin-top: 0.25rem;
+}
+
+.trajetoria {
+  list-style: none;
+  padding: 0;
+}
+
+.trajetoria li {
+  display: flex;
+  gap: var(--espaco);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cinza-urna);
+}
+
+.ano {
+  font-family: var(--fonte-numero);
+  font-weight: 700;
+}
+
+.dados {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) 1fr;
+  gap: 0.4rem var(--espaco);
+}
+
+.dados dt {
+  color: var(--texto-suave);
+}
+
+.dados dd {
+  margin: 0;
+}
+
+.redes {
+  padding-left: 1.2rem;
+  word-break: break-all;
+}
+
+.acoes {
+  margin-top: 2rem;
+}
+
+/* Colinha: papel pautado com anotação em caneta azul */
+
+.lembrete {
+  font-weight: 700;
+}
+
+.aviso {
+  padding: var(--espaco);
+  border-left: 4px solid var(--corrige);
+  background: var(--cinza-urna);
+}
+
+.vagas {
+  list-style: none;
+  padding: var(--espaco);
+  margin: var(--espaco) 0;
+  border: 1px solid var(--pauta);
+  border-radius: var(--raio);
+}
+
+.vaga {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--pauta);
+}
+
+.vaga:last-child {
+  border-bottom: 0;
+}
+
+.vaga-cargo {
+  display: block;
+  font-weight: 700;
+}
+
+.vaga-escolha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  color: var(--tinta);
+}
+
+.aviso-vaga {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-left: 4px solid var(--corrige);
+  background: var(--cinza-urna);
+  color: var(--texto);
+}
+
+.vaga-escolha .numero {
+  font-size: 1.75rem;
+}
+
+.vaga-vazia {
+  color: var(--texto-suave);
+}
+
+.acoes-colinha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vaga-escolha .digito {
+    animation: entra 0.25s ease-out;
+  }
+
+  @keyframes entra {
+    from {
+      transform: translateY(-0.3em);
+      opacity: 0;
+    }
+  }
+}
+
+/* Impressão: só a colinha, números grandes, meia folha A4 */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+
+  .topo,
+  .rodape,
+  h1,
+  .trocar-uf,
+  .vaga-vazia a,
+  .acoes-colinha,
+  .acoes,
+  .botao-colinha,
+  .pular,
+  .suave,
+  .aviso {
+    display: none !important;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .vagas {
+    background: none;
+    border: 1px solid #000000;
+  }
+
+  .vaga {
+    padding: 2mm 0;
+    border-bottom: 1px solid #999999;
+    break-inside: avoid;
+  }
+
+  .digito {
+    border-color: #000000;
+    background: none;
+    color: #000000;
+    animation: none !important;
+  }
+
+  .vaga-escolha .numero {
+    font-size: 20pt;
+  }
+}

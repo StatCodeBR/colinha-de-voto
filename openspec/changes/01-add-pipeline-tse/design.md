@@ -4,13 +4,18 @@
 
 Os arquivos de candidaturas do TSE ficam no CDN
 (`consulta_cand/consulta_cand_{ano}.zip`), com um CSV por UF e um consolidado nacional.
-São CSVs com `;`, `latin-1`, marcadores de nulo próprios (`#NULO#`, `#NE#`, `-1`...) e
-uma linha por turno. `SQ_CANDIDATO` identifica a candidatura naquele ano, não a pessoa.
+São CSVs com `;`, `latin-1`, marcadores de nulo próprios (`#NULO`, `#NULO#`, `#NE`,
+`-1`, `-4`...) e uma linha por turno. `SQ_CANDIDATO` identifica a candidatura naquele
+ano, não a pessoa. Detalhes conferidos nos arquivos reais em `docs/fontes.md`.
 
-O CPF foi ocultado dos dados abertos em 2024, inclusive retroativamente. Para 2026, a
-minuta do TSE voltou a tratar o CPF como público, mas é preciso confirmar no arquivo.
-Na prática, o vínculo com anos anteriores vai depender de nome completo e data de
-nascimento.
+Conferido em 28/09/2026: o CPF está preenchido em 2026 e em todos os anos de histórico,
+menos 2024, em que vem todo como `-4`. `DT_NASCIMENTO` está preenchida em todos os anos.
+O vínculo usa CPF para 2014 a 2022 e depende de nome completo + data de nascimento só
+para 2024.
+
+No layout novo do TSE (todos os anos menos 2016), situação de julgamento, declaração de
+bens e reeleição saíram do `consulta_cand` e foram para o
+`consulta_cand_complementar_{ano}.zip`, e `DS_SITUACAO_CANDIDATURA` vem `#NE` em 2026.
 
 ## Goals / Non-Goals
 
@@ -42,8 +47,13 @@ considerados; ficam como alternativa se o processamento dos anos municipais fica
 ### D3. Identificadores
 - Candidatura: (`ano`, `sq_candidato`).
 - Página pública: `{uf}/{numero}` (ex.: `sp/12345`); presidente em `br/{numero}`. Curto e
-  fácil de compartilhar. O número é único por UF entre os cargos de 2026 (a quantidade de
-  dígitos difere por cargo).
+  fácil de compartilhar. A quantidade de dígitos difere por cargo, e o número é único
+  por UF entre as candidaturas aptas.
+- Número repetido: o substituto herda o número de quem renunciou ou foi indeferido
+  (115 casos em 28/09/2026). A candidatura apta fica com `{uf}/{numero}`, que é o número
+  digitado na urna; as inaptas com o mesmo número ficam com
+  `{uf}/{numero}-{sq_candidato}`. Duas aptas com o mesmo número na mesma UF
+  interrompem o processamento.
 - Nenhum identificador público deriva de CPF: um hash de CPF é reversível por força
   bruta.
 
@@ -51,10 +61,24 @@ considerados; ficam como alternativa se o processamento dos anos municipais fica
 
 | Nível | Regra | Publicado? |
 |---|---|---|
-| confirmado | CPF válido e igual dos dois lados | sim |
-| confirmado | nome normalizado + data de nascimento iguais, e a chave é única nos dois lados | sim |
-| provável | nome normalizado igual na mesma UF, sem data de nascimento para comparar, com idade compatível (±1 ano) | não, vai para revisão |
-| ambíguo | a chave aponta para mais de uma pessoa em algum dos lados | não, vai para revisão |
+| confirmado | CPF válido e igual dos dois lados, e nome (ao menos uma palavra em comum, fora "da", "de", "do", "dos", "das", "e") ou data de nascimento iguais | sim |
+| ambíguo | CPF igual, mas nome e nascimento divergem (provável CPF digitado errado) | não, vai para revisão |
+| confirmado | algum lado sem CPF válido; nome normalizado + data de nascimento iguais, e a chave é única nos dois lados | sim |
+| provável | algum lado sem CPF válido; nome normalizado igual na mesma UF, sem data de nascimento em algum lado | não, vai para revisão |
+| ambíguo | a chave nome + nascimento aparece mais de uma vez em algum dos lados (no ano da eleição ou naquele ano anterior) | não, vai para revisão |
+
+Se os dois lados têm CPF válido e diferente, não há vínculo, mesmo com nome e
+nascimento iguais. A unicidade da chave nome + nascimento é contada em todas as UFs.
+
+A exigência de "idade compatível (±1 ano)" para prováveis foi retirada: no layout novo
+do TSE a idade só existe junto com a própria data de nascimento, e o provável só surge
+quando ela falta.
+
+Validação feita em 28/09/2026: aplicando a regra de nome + nascimento a 2022 e 2020 sem
+olhar o CPF, os 12.131 vínculos confirmados bateram 100% com o CPF (nenhum falso
+positivo), com cobertura de 94%. É a regra que sustenta os vínculos de 2024, ano sem CPF.
+A salvaguarda de CPF divergente veio de um caso real: CPF igual, nenhuma palavra do nome
+em comum e nascimento 6 anos diferente.
 
 Correções em `data/manual/vinculos.csv` (confirmar ou rejeitar um par específico)
 prevalecem sobre qualquer regra.
@@ -121,6 +145,54 @@ Se `NM_SOCIAL_CANDIDATO` estiver preenchido, ele é o nome exibido e o nome civi
 entra em nenhuma saída pública. Caso contrário, o nome exibido é o nome civil
 (`NM_CANDIDATO`). O nome de urna é sempre exibido.
 
+A trajetória nunca traz o nome usado nas candidaturas anteriores. Há vínculos
+confirmados por CPF e nascimento em que o nome civil mudou por completo (provável
+retificação); publicar o nome antigo exporia essa pessoa. O relatório de revisão mostra
+os dois nomes, mas é interno e nunca publicado.
+
+### D9. Aptidão e arquivo complementar
+O ano da eleição usa também o arquivo complementar, juntado às candidaturas por
+`SQ_CANDIDATO` (uma linha por candidatura; falta ou repetição interrompe o
+processamento). Dele vêm `declarou_bens` (`ST_DECLARAR_BENS`), `busca_reeleicao`
+(`ST_REELEICAO`) e a situação de julgamento.
+
+`situacao_julgamento` é `DS_SITUACAO_JULGAMENTO_PLEITO`, a decisão mais recente; quando
+ela é nula (candidatura fora da urna), vale `DS_SITUACAO_JULGAMENTO`. `apto` significa
+"está na urna e pode receber votos", inclusive sub judice:
+
+| Situação | apto |
+|---|---|
+| DEFERIDO, DEFERIDO COM RECURSO, DEFERIDO EM PRAZO RECURSAL OU COM RECURSO | sim |
+| INDEFERIDO EM PRAZO RECURSAL OU COM RECURSO, PEDIDO NÃO CONHECIDO EM PRAZO RECURSAL OU COM RECURSO | sim (sub judice) |
+| PENDENTE DE JULGAMENTO | sim |
+| INDEFERIDO, PEDIDO NÃO CONHECIDO, RENÚNCIA, CANCELADO, FALECIMENTO | não |
+
+Valor fora da tabela interrompe o processamento com a lista de valores, como em D6.
+A situação por extenso vai para o detalhe, para o site explicar os casos sub judice.
+
+Alternativas consideradas: `DS_SITUACAO_CANDIDATURA` (vem `#NE` em 2026);
+`ST_CANDIDATO_INSERIDO_URNA` (diz se o nome está na urna, não se o voto vale: renúncias
+depois do fechamento continuam na urna); só `DS_SITUACAO_JULGAMENTO` (ignora decisões
+posteriores registradas no pleito).
+
+### D10. Reeleição
+`ST_REELEICAO` vem `#NE` em 2026: o TSE não informa quem busca reeleição. Decisão
+(28/09/2026): derivar da trajetória confirmada. `busca_reeleicao` é verdadeiro quando
+a pessoa tem vínculo confirmado com uma candidatura eleita **para o mesmo cargo, na
+mesma UF, na eleição que elegeu o mandato atual**: 4 anos antes para todos os cargos e
+8 anos antes para senador (mandato de 8 anos; em 2026 é a eleição de 2018).
+
+- Falso quando não há essa candidatura eleita entre os vínculos confirmados.
+- Nulo quando não há confirmada, mas há vínculo pendente (provável ou ambíguo) naquele
+  ano: pode ser reeleição, e o site não afirma nada.
+- Não cobre suplente que assumiu o mandato: o TSE registra essa pessoa como suplente, e
+  o site não pode afirmar que ela exerce o cargo.
+
+O site descreve o fato ("Eleita deputada estadual em 2022"), não a intenção.
+
+Alternativa considerada: tirar o filtro de reeleição do site. Rejeitada porque a
+informação é útil ao eleitor e sai de dado confirmado.
+
 ## Risks / Trade-offs
 
 - **Homônimo vinculado errado** atribui a trajetória de outra pessoa a alguém, com dano
@@ -132,14 +204,13 @@ entra em nenhuma saída pública. Caso contrário, o nome exibido é o nome civi
   com mensagem clara.
 - **Dados de 2026 mudam até a eleição** (indeferimentos, renúncias). Mitigação:
   `/atualizar-dados` diário até 4/out.
-- **Anos municipais são grandes.** Mitigação: `usecols`, processamento por ano, cache
-  em parquet.
+- **Anos municipais são grandes.** Medido em 28/09/2026: todas as UFs e 7 anos em 54 s,
+  pico de 1,2 GB, lendo só as colunas necessárias. Sem necessidade de DuckDB ou polars.
+- **Situação de julgamento nova** durante a atualização diária. Mitigação: o
+  processamento falha com o valor novo (D9) e o site anterior continua no ar.
 
 ## Open Questions
 
-- O arquivo de 2026 traz o CPF preenchido?
-- `DT_NASCIMENTO` está presente em todos os anos da janela, depois do mascaramento de
-  2024?
 - Existe um padrão de URL estável no DivulgaCandContas para linkar cada candidato?
 - Candidaturas inaptas: o site mostra por padrão ou só sob filtro? (Proposta: os dados
   incluem todas; o site mostra aptas por padrão.)

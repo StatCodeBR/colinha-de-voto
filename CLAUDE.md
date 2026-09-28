@@ -47,6 +47,7 @@ just test -k vinculo
 just lint / just fmt
 just specs                # openspec list + validate
 just check                # lint + test + specs
+just privacidade          # nenhum CPF/nome civil protegido em data/processed/
 ```
 
 Para iterar rápido, use `just dev` (RR, a menor UF). Só rode todas as UFs quando o

@@ -81,14 +81,53 @@ just servir                   # abre o site em http://localhost:8000
 just tudo                     # pipeline completo, todas as UFs
 just atualizar                # rebaixa, reprocessa e regenera (todo dia até a eleição)
 just check                    # lint + testes + validação das specs
-just publicar                 # deploy (configurado na change 02)
+just privacidade              # nenhum CPF/nome civil protegido nas saídas e no site
+just publicar                 # release do site no GitHub + deploy no Dokploy
 ```
-
-Os comandos `just` que chamam `colinha` passam a funcionar depois que a change 01 criar
-o pacote.
 
 Comandos extras no Claude Code: `/atualizar-dados`, `/revisar-vinculos RR` e
 `/checar-neutralidade`.
+
+## Publicação e ciclo diário até a eleição
+
+O site roda no servidor da StatCode, gerenciado pelo Dokploy (design D9 da change 02).
+Quem publica gera o site na própria máquina, confere e só então envia: o `just publicar`
+cria uma release no GitHub com o site compactado (`site.tar.gz`), grava a tag em
+`deploy/release.txt` e pede o redeploy. O Dokploy constrói a imagem nginx baixando essa
+release.
+
+Configuração, uma vez só:
+
+1. `gh auth login` (o `gh` vem do `nix develop`), com permissão para criar releases e
+   fazer push em `StatCodeBR/colinha-de-voto`.
+2. No Dokploy, crie a aplicação (passo a passo em `docs/deploy.md`):
+   provider Git com `https://github.com/StatCodeBR/colinha-de-voto.git`, branch `main`,
+   build type Dockerfile, domínio `colinha.statcode.com.br` na porta 80 com HTTPS, e
+   Auto Deploy ligado.
+3. No GitHub, cadastre o webhook do Dokploy (Settings → Webhooks), evento `push`. Assim
+   o commit que o `just publicar` faz em `deploy/release.txt` dispara o deploy. Deixe
+   `DOKPLOY_WEBHOOK` fora do `.env`: o webhook do Dokploy confere a branch no conteúdo
+   enviado pelo GitHub, e uma chamada direta pode ser recusada.
+
+Todo dia, até 4 de outubro:
+
+```bash
+just atualizar       # rebaixa os dados do TSE, reprocessa e regenera o site
+just privacidade     # confere que nada pessoal vazou
+just servir          # abra três páginas no celular (largura estreita) e confira
+just publicar        # cria a release, grava a tag, faz push e dispara o redeploy
+```
+
+Se o `just atualizar` parar com erro, o TSE mudou algo (situação nova, coluna nova). O
+site anterior continua no ar; registre em `docs/fontes.md` e ajuste antes de publicar.
+Vínculos novos em revisão aparecem em `data/processed/revisao_vinculos.csv`
+(`/revisar-vinculos SP` no Claude Code).
+
+Para voltar à versão anterior: as releases ficam em
+`https://github.com/StatCodeBR/colinha-de-voto/releases` (tags `site-AAAAMMDD-HHMM`).
+Escreva a tag anterior em `deploy/release.txt`, faça commit e push, e dispare o redeploy.
+Em emergência, dá para passar `RELEASE=<tag anterior>` como build arg na aplicação do
+Dokploy e fazer o redeploy (lembre de tirar depois).
 
 ## Onde mudar o quê
 
