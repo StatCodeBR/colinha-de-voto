@@ -26,7 +26,7 @@
 - [x] 3.3 Confirmar no TSE a ordem oficial de votação da urna em 2026 e registrar em `docs/fontes.md` (revisão humana: o site do TSE bloqueia acesso automatizado; hoje `ordem_urna` usa a de 2018) (confirmada em 28/09/2026 na colinha eleitoral do TSE: igual à de 2018)
 - [x] 3.4 Página `/colinha/` na ordem da urna, com vagas vazias identificadas, botão de apagar e impressão
 - [x] 3.5 Conferência dos candidatos guardados contra o índice atual, com aviso de candidatura não apta
-- [ ] 3.6 Teste manual guiado no celular: montar, trocar, apagar, imprimir, trocar de UF
+- [x] 3.6 Teste manual guiado no celular: montar, trocar, apagar, imprimir, trocar de UF (feito em 29/09/2026 no celular pela equipe; tudo como descrito)
 - [ ] 3.7 (opcional) Teste automatizado com pytest-playwright cobrindo montar e imprimir
 
 ## 4. Compartilhamento, acessibilidade e desempenho
