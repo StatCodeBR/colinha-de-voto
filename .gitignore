@@ -12,6 +12,9 @@ data/processed/
 # Site gerado
 site/dist/
 
+# Relatórios internos de acessos (just acessos)
+relatorios/
+
 # Ambiente (Nix, direnv, OpenSpec local)
 .direnv/
 .npm-global/

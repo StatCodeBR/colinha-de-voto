@@ -88,3 +88,7 @@ limpar-tudo: limpar
 # Publica o site: release no GitHub + redeploy no Dokploy
 publicar: site
     ./deploy/publicar.sh
+
+# Relatório interno de acessos (últimos 30 dias) em relatorios/; precisa de SERVIDOR_SSH no .env
+acessos:
+    ./deploy/relatorio-acessos.sh
