@@ -337,7 +337,7 @@ button,
 }
 
 .botao-colinha,
-#imprimir {
+#baixar-pdf {
   background: var(--confirma);
   color: #ffffff;
 }
@@ -348,7 +348,8 @@ button,
   color: #ffffff;
 }
 
-.compartilhar {
+.compartilhar,
+#imprimir {
   display: inline-block;
   background: var(--papel);
   color: var(--tinta);
@@ -466,10 +467,17 @@ button,
   color: var(--texto-suave);
 }
 
-.acoes-colinha {
+.acoes-colinha > p:first-child {
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco);
+}
+
+/* Só no cartão de bolso impresso (ver @media print) */
+.numero-vazio,
+.aviso-curto,
+.cartao-rodape {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -487,55 +495,139 @@ button,
 
 /* Impressão: só a colinha, números grandes, meia folha A4 */
 
+/* Impressão: só o cartão de bolso de 63 x 88 mm, tracejado, no canto superior esquerdo da
+   folha A4 (o mesmo do PDF de static/js/pdf-colinha.js). */
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 6mm;
   }
 
   body {
-    font-size: 12pt;
+    background: none;
+    color: #000000;
   }
 
   .topo,
   .rodape,
   .voltar,
   h1,
+  .lembrete,
   .trocar-uf,
-  .vaga-vazia a,
+  .vaga-vazia,
+  .aviso-vaga,
   .acoes-colinha,
   .acoes,
   .botao-colinha,
   .pular,
   .suave,
-  .aviso {
+  .aviso,
+  .mudou .vaga-partido {
     display: none !important;
   }
 
   main {
     max-width: none;
+    margin: 0;
     padding: 0;
   }
 
+  #colinha {
+    position: relative;
+    box-sizing: border-box;
+    width: 63mm;
+    height: 88mm;
+    margin: 4mm 0 0 4mm;
+    padding: 3mm;
+    border: 1px dashed #000000;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 6.5pt;
+    line-height: 1.1;
+  }
+
+  #colinha::before {
+    content: "Recorte na linha tracejada";
+    position: absolute;
+    top: -3.5mm;
+    left: 0;
+    font-size: 6pt;
+  }
+
+  #colinha h2 {
+    margin: 0 0 1mm;
+    padding-bottom: 1mm;
+    border-bottom: 1px solid #000000;
+    font-size: 9pt;
+  }
+
   .vagas {
+    margin: 0;
+    padding: 0;
+    border: 0;
     background: none;
-    border: 1px solid #000000;
   }
 
   .vaga {
-    padding: 2mm 0;
+    padding: 0.3mm 0 0.5mm;
     border-bottom: 1px solid #999999;
     break-inside: avoid;
   }
 
+  .vaga-cargo {
+    font-size: 6.5pt;
+  }
+
+  .vaga-escolha {
+    display: block;
+    color: #000000;
+  }
+
+  .vaga-escolha a,
+  .vaga-escolha span:not(.numero):not(.digito) {
+    display: inline;
+    color: #000000;
+    text-decoration: none;
+  }
+
+  .vaga-partido::before,
+  .aviso-curto::before {
+    content: " · ";
+  }
+
+  #colinha .numero {
+    display: flex;
+    gap: 1mm;
+    margin: 0.3mm 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+  }
+
   .digito {
-    border-color: #000000;
+    box-sizing: border-box;
+    min-width: 5mm;
+    height: 5mm;
+    padding: 0;
+    line-height: 4.8mm;
+    border: 1px solid #000000;
+    border-radius: 0;
     background: none;
     color: #000000;
     animation: none !important;
   }
 
-  .vaga-escolha .numero {
-    font-size: 20pt;
+  .aviso-curto {
+    display: inline;
+  }
+
+  .cartao-rodape {
+    display: block;
+    position: absolute;
+    bottom: 1.5mm;
+    left: 3mm;
+    right: 3mm;
+    margin: 0;
+    padding-top: 0.8mm;
+    border-top: 1px solid #000000;
+    font-size: 6pt;
   }
 }

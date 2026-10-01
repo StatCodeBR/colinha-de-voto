@@ -296,7 +296,7 @@ def montar_raw(raiz: Path) -> None:
     tmp = raiz / "tmp"
     cand26 = [
         linha_cand(2026, "1", "1111", "ANA"),
-        linha_cand(2026, "2", "22", "BIA", DS_CARGO="SENADOR", NR_CPF_CANDIDATO=gerar_cpf(2)),
+        linha_cand(2026, "2", "222", "BIA", DS_CARGO="SENADOR", NR_CPF_CANDIDATO=gerar_cpf(2)),
     ]
     pres = [
         linha_cand(

@@ -203,6 +203,10 @@
   trocar.href = "?uf=";
   raiz.appendChild(el("p", "trocar-uf")).appendChild(trocar);
 
+  // Colinha de bolso (PDF e impressão): mesmas vagas, mesma ordem da página.
+  var AVISO_CURTO = "Confira no site: a situação mudou";
+  var cartao = { titulo: "Colinha " + config.deUf[uf], vagas: [], rodape: [] };
+
   var ol = el("ol", "vagas");
   var slots = [];
   config.cargosPorUf[uf].forEach(function (cargo) {
@@ -214,32 +218,57 @@
       var rotulo = config.rotulos[cargo] + (vagas > 1 ? ", " + (i + 1) + "º voto" : "");
       li.appendChild(el("span", "vaga-cargo", rotulo));
       var c = lista[i];
+      var vagaCartao = { cargo: rotulo, digitos: config.digitos[cargo], numero: null };
       if (c) {
         var escolha = el("span", "vaga-escolha");
         escolha.appendChild(numero(c.numero));
         var nome = el("a", null, c.nome);
         nome.href = c.url;
         escolha.appendChild(nome);
-        escolha.appendChild(el("span", null, c.partido));
+        escolha.appendChild(el("span", "vaga-partido", c.partido));
         li.appendChild(escolha);
-        slots.push({ li: li, candidato: c, chave: chave });
+        vagaCartao.numero = c.numero;
+        vagaCartao.nome = c.nome;
+        vagaCartao.partido = c.partido;
+        slots.push({ li: li, candidato: c, chave: chave, cartao: vagaCartao });
       } else {
         var vazio = el("span", "vaga-vazia", "Ainda não escolhido. ");
         var ver = el("a", null, "Ver candidaturas");
         ver.href = "/" + uf.toLowerCase() + "/" + slug(cargo) + "/";
         vazio.appendChild(ver);
         li.appendChild(vazio);
+        // Quadradinhos em branco, só na impressão, para preencher à mão.
+        var branco = el("span", "numero numero-vazio");
+        branco.setAttribute("aria-hidden", "true");
+        for (var d = 0; d < config.digitos[cargo]; d++) branco.appendChild(el("span", "digito", "\u00a0"));
+        li.appendChild(branco);
       }
+      cartao.vagas.push(vagaCartao);
       ol.appendChild(li);
     }
   });
   raiz.appendChild(ol);
 
+  var hoje = new Date();
+  var data = ("0" + hoje.getDate()).slice(-2) + "/" + ("0" + (hoje.getMonth() + 1)).slice(-2) + "/" + hoje.getFullYear();
+  cartao.rodape = [config.endereco + " · gerado em " + data, "Confira os números antes de votar."];
+  var rodape = el("p", "cartao-rodape");
+  cartao.rodape.forEach(function (linha, i) {
+    if (i) rodape.appendChild(el("br"));
+    rodape.appendChild(document.createTextNode(linha));
+  });
+  raiz.appendChild(rodape);
+
   var acoes = document.getElementById("colinha-acoes");
   acoes.hidden = false;
-  document.getElementById("imprimir").addEventListener("click", function () {
-    window.print();
-  });
+  var imprimir = document.getElementById("imprimir");
+  if (typeof window.print === "function") {
+    imprimir.addEventListener("click", function () {
+      window.print();
+    });
+  } else {
+    imprimir.hidden = true;
+  }
   document.getElementById("apagar").addEventListener("click", function () {
     if (!window.confirm("Apagar todas as escolhas da colinha " + config.deUf[uf] + ", inclusive a de presidente?")) return;
     remover(PREFIXO + uf);
@@ -259,15 +288,35 @@
       } else if (!situacao[s.candidato.id]) {
         texto = "Esta candidatura não está mais apta. Veja a situação na página e considere escolher outra.";
       }
-      if (texto) s.li.appendChild(el("span", "aviso-vaga", texto));
+      if (texto) {
+        s.li.appendChild(el("span", "aviso-vaga", texto));
+        s.li.querySelector(".vaga-escolha").appendChild(el("span", "aviso-curto", AVISO_CURTO));
+        s.li.classList.add("mudou");
+        s.cartao.aviso = AVISO_CURTO;
+      }
     });
   }
 
-  [uf, "BR"].forEach(function (chave) {
-    if (!slots.some(function (s) { return s.chave === chave; })) return;
-    fetch("/dados/" + chave + ".json")
+  var conferencias = [uf, "BR"].map(function (chave) {
+    if (!slots.some(function (s) { return s.chave === chave; })) return null;
+    return fetch("/dados/" + chave + ".json")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (indice) { if (indice) conferir(chave, indice); })
       .catch(function () {});
+  });
+
+  // O PDF sai depois da conferência (ou da falha dela), para levar os avisos.
+  document.getElementById("baixar-pdf").addEventListener("click", function () {
+    Promise.all(conferencias).then(function () {
+      var pdf = window.ColinhaPDF.gerar(cartao);
+      var url = URL.createObjectURL(new Blob([pdf], { type: "application/pdf" }));
+      var link = el("a");
+      link.href = url;
+      link.download = "colinha-" + uf.toLowerCase() + ".pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+    });
   });
 })();
