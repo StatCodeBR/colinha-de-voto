@@ -77,12 +77,12 @@ Fazer **antes** do primeiro deploy com a change; sem o volume, os registros some
 publicação. Nomes de abas conferidos só de memória: se não baterem, procurar "Volumes" e
 "Schedules" na aplicação.
 
-- [ ] Aba **Advanced → Volumes** (ou **Mounts**) → **Add Volume**:
+- [x] Aba **Advanced → Volumes** (ou **Mounts**) → **Add Volume**:
   - Tipo: **Volume Mount** (volume do Docker, não pasta do servidor).
   - Volume Name: `colinha-logs`
   - Mount Path: `/var/log/colinha`
   - Salvar e fazer **Deploy** (vale no próximo deploy).
-- [ ] Aba **Schedules** → nova tarefa, para apagar registros com mais de 30 dias:
+- [x] Aba **Schedules** → nova tarefa, para apagar registros com mais de 30 dias:
   - Nome: `limpar-acessos`
   - Agenda (cron): `15 3 * * *` (todo dia às 3h15)
   - Comando: `find /var/log/colinha -name 'acessos-*.log' -mtime +30 -delete`
