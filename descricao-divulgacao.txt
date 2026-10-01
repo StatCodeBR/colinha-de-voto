@@ -1,0 +1,55 @@
+Colinha do Voto: descrição do projeto
+Em uma frase
+Um site gratuito e apartidário em que o eleitor conhece os candidatos da eleição de 2026 (quem são, se já concorreram antes, se já foram eleitos e o que declararam à Justiça Eleitoral) e monta a sua colinha com os números para levar à urna.
+
+Quem faz
+A StatCode, empresa de dados e programação que também ensina análise de dados com Python. O projeto é aberto: o código está em https://github.com/StatCodeBR/colinha-de-voto. O site vai ficar em colinha.statcode.com.br.
+
+O problema
+Na eleição geral há centenas de candidatos por estado; só em São Paulo são mais de 2.500. A maioria dos eleitores decide deputado estadual e federal nos últimos dias, muitas vezes sem saber nada sobre quem está escolhendo.
+As informações existem nos dados abertos do Tribunal Superior Eleitoral (TSE), mas estão em arquivos grandes e técnicos, separados por ano. O TSE não liga a mesma pessoa entre uma eleição e outra, então descobrir se alguém já concorreu ou já foi eleito dá trabalho.
+O celular não pode entrar na cabine de votação, e muita gente esquece o número do candidato na hora de votar.
+O que o site faz
+Escolha do estado e do cargo. Os cargos aparecem na ordem em que se vota na urna: deputado federal, deputado estadual (ou distrital no DF), senador (duas vagas em 2026), governador e presidente.
+Lista de candidatos por cargo. Sempre em ordem alfabética, com busca por nome, número ou partido e filtros por gênero, partido, histórico ("já foi eleito(a)", "já concorreu", "nenhuma candidatura encontrada") e quem foi eleito para o mesmo cargo na eleição anterior.
+Página de cada candidato, sempre com as mesmas seções, na mesma ordem:
+número em "caixinhas", como na tela da urna, partido e situação da candidatura (inclusive se está sub judice, explicado em português simples);
+trajetória eleitoral de 2014 a 2024: em que anos concorreu, a quais cargos, em que cidade ou estado, por qual partido e com qual resultado. Inclui eleições municipais, como vereador e prefeito;
+dados declarados ao TSE: idade, gênero, cor ou raça, escolaridade, ocupação, total de bens declarados e redes sociais;
+fonte e data de cada informação, mais um link "Encontrou um erro?".
+A colinha. O eleitor toca em "Adicionar à colinha" e, em "Minha colinha", vê suas escolhas na ordem da urna, com os números grandes. Pode imprimir (cabe em meia folha A4) ou copiar à mão. Levar anotações escritas para a cabine é permitido; o celular, não. A colinha avisa se um candidato escolhido deixou de estar apto.
+Compartilhar. Cada candidato tem um link próprio, com prévia bonita no WhatsApp (nome, número, cargo e estado).
+Página "Como fizemos", com fontes, método, limitações e como reportar erros.
+Números (dados de 28/09/2026)
+20.063 candidaturas aos cargos da eleição de 2026, nos 27 estados, mais os 14 candidatos a presidente.
+Cerca de 1,6 milhão de candidaturas de 2014 a 2024 analisadas para montar as trajetórias.
+Cerca de 31 mil ligações confirmadas entre a candidatura atual e as anteriores da mesma pessoa. Uns 4.900 candidatos de 2026 já foram eleitos para algum cargo nesse período.
+Os dados são atualizados todos os dias até a eleição.
+O que torna o projeto diferente
+Trajetória eleitoral pronta. O site faz o trabalho de ligar a mesma pessoa entre eleições. Só publica uma ligação quando tem segurança: casos duvidosos, como homônimos, passam por revisão humana antes.
+Neutro de verdade. O mesmo formato para todos os candidatos, ordem alfabética, sem notas, rankings, destaques, cores de partido nem adjetivos. Só fatos com fonte.
+Honesto sobre o que não sabe. Quando não encontra registro, escreve "Nenhuma candidatura encontrada de 2014 a 2024", e nunca "primeira candidatura". Dado ausente aparece como "Não informado".
+Privado. Sem cadastro, sem cookies, sem anúncios, sem rastreamento. A colinha fica só no celular do eleitor e nada é enviado para ninguém. O site não publica CPF, título de eleitor nem e-mail dos candidatos.
+Feito para celular e internet fraca. Páginas levíssimas (uma página de candidato tem menos de 10 KB), que funcionam mesmo sem JavaScript e com fonte de alta legibilidade.
+Oficial e aberto. Só dados abertos oficiais do TSE, com código aberto e método público.
+O que o site não faz
+Não recomenda candidatos, não compara um com outro e não dá nota.
+Ainda não mostra a atuação de quem foi deputado federal (projetos de lei apresentados, temas). Isso está planejado, mas não há garantia de sair antes do 1º turno. Não prometer na divulgação.
+Não tem fotos dos candidatos, por enquanto.
+Não cobre o 2º turno de forma especial, por enquanto.
+Público
+Eleitores comuns, de todas as idades, a maioria no celular, muitos com internet ruim. Eles chegam principalmente por links compartilhados no WhatsApp. Um público secundário são professores, jornalistas e quem trabalha com dados.
+
+Datas
+Previsão de o site estar no ar: até quinta, 1º de outubro de 2026.
+1º turno: domingo, 4 de outubro de 2026. A janela de divulgação é de poucos dias.
+O projeto foi pensado para ser reaproveitado em 2028 (prefeito e vereador) e em 2030.
+Cuidados para a divulgação
+Manter o tom apartidário em tudo. Nenhuma peça deve mostrar um candidato real como exemplo, nem sugerir que o site ajuda a "desmascarar" ou "descobrir quem presta". Isso contradiz a neutralidade e pode ser lido como propaganda eleitoral. Para exemplos visuais, usar candidatos fictícios.
+Não prometer o que não existe (por exemplo, atuação na Câmara ou fotos).
+A mensagem central é prática: "conheça antes de votar e leve sua colinha".
+A StatCode aparece como autora; o foco é o serviço ao eleitor.
+Ideias já previstas pela StatCode
+Um post ou vídeo "como construímos o Colinha do Voto com dados abertos".
+Uma aula prática usando os arquivos do TSE.
+Uma página de projetos abertos da StatCode.
