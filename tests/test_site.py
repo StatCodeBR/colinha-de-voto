@@ -278,3 +278,36 @@ def test_toda_subpagina_tem_um_link_voltar(dist: Path):
     assert "data-voltar-presidente" not in (dist / "rr" / "1111" / "index.html").read_text()
     for rota in ["index.html", "404.html"]:
         assert "data-voltar" not in (dist / rota).read_text(), rota
+
+
+def test_metodologia_explica_a_contagem_de_acessos(dist: Path):
+    html = (dist / "metodologia" / "index.html").read_text()
+    paragrafo = html.split("<h2>Contagem de acessos</h2>")[1].split("<h2>")[0]
+    for ponto in ["não usa cookies", "gravado incompleto", "30 dias", "quais candidatos"]:
+        assert ponto in paragrafo, ponto
+
+
+def test_nenhum_script_de_contagem(dist: Path):
+    scripts = set()
+    for arquivo in dist.rglob("*.html"):
+        for src in re.findall(r'<script[^>]+src="([^"?]+)', arquivo.read_text()):
+            scripts.add(src)
+    assert scripts <= {"/static/js/busca.js", "/static/js/colinha.js", "/static/js/compartilhar.js"}
+
+
+def test_registro_do_nginx_nao_grava_dado_identificavel():
+    conf = (Path(__file__).parents[1] / "deploy" / "nginx.conf").read_text()
+    formato = conf.split("log_format anonimo")[1].split(";")[0]
+    assert formato.lstrip().startswith("'$ip_anonimo ")
+    for proibido in [
+        "$remote_addr",
+        "$http_x_forwarded_for",
+        "$http_cookie",
+        "$request ",
+        "$request_uri",
+        "$args",
+        "$http_referer",
+    ]:
+        assert proibido not in formato, proibido
+    acessos = re.findall(r"^\s*access_log\s+([^;]+);", conf, re.M)
+    assert acessos == ["/var/log/colinha/acessos-$dia.log anonimo"]

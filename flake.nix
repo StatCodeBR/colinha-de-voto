@@ -35,6 +35,7 @@
               pkgs.git
               pkgs.unzip
               pkgs.gh # releases do site (just publicar)
+              pkgs.goaccess # relatório de acessos (just acessos)
             ];
 
             shellHook = ''

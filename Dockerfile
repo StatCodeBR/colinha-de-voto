@@ -37,3 +37,6 @@ SH
 FROM nginx:1.28-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=site /site/ /usr/share/nginx/html/
+# Registros de acesso (change add-contagem-acessos). No Dokploy, o volume colinha-logs é
+# montado aqui; vazio, ele herda o dono nginx na primeira montagem.
+RUN mkdir -p /var/log/colinha && chown nginx:nginx /var/log/colinha

@@ -71,6 +71,34 @@ Pré-requisito: o PR da `change-01-pipeline-tse` já está na `main`.
   - [ ] link de um candidato colado no WhatsApp mostra a prévia com nome, número, cargo
         e UF (tarefa 6.3 da change 02).
 
+## 6. Contagem de acessos (change add-contagem-acessos)
+
+Fazer **antes** do primeiro deploy com a change; sem o volume, os registros somem a cada
+publicação. Nomes de abas conferidos só de memória: se não baterem, procurar "Volumes" e
+"Schedules" na aplicação.
+
+- [ ] Aba **Advanced → Volumes** (ou **Mounts**) → **Add Volume**:
+  - Tipo: **Volume Mount** (volume do Docker, não pasta do servidor).
+  - Volume Name: `colinha-logs`
+  - Mount Path: `/var/log/colinha`
+  - Salvar e fazer **Deploy** (vale no próximo deploy).
+- [ ] Aba **Schedules** → nova tarefa, para apagar registros com mais de 30 dias:
+  - Nome: `limpar-acessos`
+  - Agenda (cron): `15 3 * * *` (todo dia às 3h15)
+  - Comando: `find /var/log/colinha -name 'acessos-*.log' -mtime +30 -delete`
+  - Shell: `sh`. Salvar e rodar uma vez para conferir que não dá erro.
+- [ ] No servidor, conferir o nome real do volume: `docker volume ls | grep colinha`.
+      Se o Dokploy tiver acrescentado um prefixo, pôr o nome em `VOLUME_ACESSOS` no `.env`
+      de quem roda `just acessos`.
+- [ ] No `.env` de quem gera o relatório: `SERVIDOR_SSH=usuario@servidor`. O usuário
+      precisa entrar por SSH com chave e rodar `docker` sem senha.
+- [ ] Log do Traefik: o Dokploy pode guardar um log de acesso próprio, com o IP completo
+      (página **Requests** do painel, ou `accessLog` em `/etc/dokploy/traefik/traefik.yml`).
+      Se estiver ligado, desligar ou reduzir a retenção, e anotar aqui o que foi feito. A
+      promessa da página "Como fizemos" depende disso.
+- [ ] Depois do primeiro deploy: abrir o site, esperar um minuto e conferir que o arquivo
+      do dia existe (`docker exec <container> ls /var/log/colinha`), depois `just acessos`.
+
 ## Se algo der errado
 
 - **Build falha com "deploy/release.txt vazio"**: ainda não houve `just publicar`.
@@ -83,3 +111,7 @@ Pré-requisito: o PR da `change-01-pipeline-tse` já está na `main`.
   Arguments**, `RELEASE=<tag anterior>` e **Deploy** (tirar depois).
 - **HTTPS não sai**: o DNS ainda não aponta para o servidor, ou a porta 80 do servidor
   está fechada (o Let's Encrypt precisa dela). Ver os logs do Traefik no Dokploy.
+- **`just acessos` diz que não há registros**: o volume não está montado em
+  `/var/log/colinha`, o nome em `VOLUME_ACESSOS` está errado, ou o nginx não tem permissão
+  de escrita na pasta (o volume foi criado antes, com outro dono). Neste último caso:
+  `docker run --rm -v colinha-logs:/logs alpine chown 101:101 /logs` e redeploy.

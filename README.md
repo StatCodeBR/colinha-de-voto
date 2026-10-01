@@ -83,6 +83,7 @@ just atualizar                # rebaixa, reprocessa e regenera (todo dia até a 
 just check                    # lint + testes + validação das specs
 just privacidade              # nenhum CPF/nome civil protegido nas saídas e no site
 just publicar                 # release do site no GitHub + deploy no Dokploy
+just acessos                  # relatório interno de acessos em relatorios/
 ```
 
 Comandos extras no Claude Code: `/atualizar-dados`, `/revisar-vinculos RR` e
@@ -128,6 +129,30 @@ Para voltar à versão anterior: as releases ficam em
 Escreva a tag anterior em `deploy/release.txt`, faça commit e push, e dispare o redeploy.
 Em emergência, dá para passar `RELEASE=<tag anterior>` como build arg na aplicação do
 Dokploy e fazer o redeploy (lembre de tirar depois).
+
+## Contagem de acessos
+
+O nginx registra cada página aberta num volume do servidor, um arquivo por dia, com o IP
+sem o último bloco, sem a query string (fica só `?uf=`) e com a origem reduzida ao
+domínio. Os registros são apagados depois de 30 dias. Não há cookies nem script de
+contagem no site. Configuração do volume e da limpeza: seção 6 de `docs/deploy.md`.
+
+```bash
+just acessos         # gera relatorios/acessos-AAAAMMDD.html (fora do git)
+```
+
+Precisa de `SERVIDOR_SSH=usuario@servidor` no `.env`. O comando apaga os registros com
+mais de 30 dias, lê os demais pelo SSH e gera o relatório com o GoAccess, sem gravar os
+registros nesta máquina. O relatório mostra páginas vistas por dia, páginas mais vistas,
+origem dos acessos, navegadores e sistemas. A origem só aparece quando o app a informa:
+buscadores e redes sociais costumam informar; o WhatsApp em geral não, e esses acessos
+caem em "sem origem" (a prévia do link gerada pelo WhatsApp aparece como robô). Não
+publique o relatório.
+
+Páginas vistas são exatas. "Visitantes" é aproximado e tende a ficar abaixo do real: as
+operadoras de celular põem muitas pessoas atrás do mesmo IP, e o IP gravado sem o último
+bloco junta ainda mais. Os horários aparecem no fuso de Brasília; os arquivos do servidor
+viram o dia à meia-noite UTC (21h em Brasília).
 
 ## Onde mudar o quê
 
