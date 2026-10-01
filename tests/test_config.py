@@ -35,3 +35,10 @@ def test_uf_desconhecida(raiz: Path):
 def test_arquivo_ausente(tmp_path: Path):
     with pytest.raises(config.ErroConfig, match="não encontrado"):
         config.carregar(tmp_path / "config.toml")
+
+
+def test_cargo_sem_digitos_falha(raiz: Path):
+    texto = (raiz / "config.toml").read_text().replace('"SENADOR" = 3, ', "")
+    (raiz / "config.toml").write_text(texto)
+    with pytest.raises(config.ErroConfig, match=r"eleicao\.digitos"):
+        config.carregar(raiz / "config.toml")

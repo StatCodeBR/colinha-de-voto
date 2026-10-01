@@ -13,12 +13,13 @@ import unicodedata
 from importlib import resources
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 
 from colinha.config import UFS, Config
 from colinha.site import textos
+from colinha.tse import ErroDados
 from colinha.vinculo import MANDATO_ANOS
 
 MAX_REDES = 20  # links de redes sociais exibidos por candidato (mesmo limite para todos)
@@ -227,6 +228,17 @@ def _gravar(caminho: Path, texto: str) -> None:
     caminho.write_text(texto, encoding="utf-8")
 
 
+def conferir_digitos(candidaturas: list[dict[str, Any]], cfg: Config) -> None:
+    """Para a geração se um número não tem os dígitos do cargo (quadradinhos da colinha)."""
+    for d in candidaturas:
+        esperado = cfg.eleicao.digitos[d["cargo"]]
+        if not (d["numero"].isdigit() and len(d["numero"]) == esperado):
+            raise ErroDados(
+                f"{d['uf']}, {d['cargo']}: número {d['numero']!r} ({d['id']}) não tem "
+                f"{esperado} dígitos (eleicao.digitos no config.toml)"
+            )
+
+
 def gerar(cfg: Config, log=print) -> None:
     """Regenera site/dist/ inteiro a partir de data/processed/."""
     proc = cfg.dir_processed
@@ -258,6 +270,7 @@ def gerar(cfg: Config, log=print) -> None:
         ]
 
     presidentes = detalhes("BR")
+    conferir_digitos(presidentes, cfg)
     for d in presidentes:
         pagina(
             f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg), voltar=voltar_candidato(d)
@@ -267,6 +280,7 @@ def gerar(cfg: Config, log=print) -> None:
     cargos_por_uf: dict[str, list[str]] = {}
     for uf in ufs:
         todos = detalhes(uf)
+        conferir_digitos(todos, cfg)
         for d in todos:
             pagina(
             f"/{d['id']}/", "candidato.html", c=pagina_candidato(d, cfg), voltar=voltar_candidato(d)
@@ -318,6 +332,8 @@ def gerar(cfg: Config, log=print) -> None:
     config_colinha = {
         "ordem": list(cfg.eleicao.ordem_urna),
         "vagas": cfg.eleicao.vagas_colinha,
+        "digitos": cfg.eleicao.digitos,
+        "endereco": urlparse(cfg.projeto.url_base).netloc,
         "rotulos": {c: textos.CARGOS[c][0] for c in cfg.eleicao.ordem_urna},
         "cargosPorUf": cargos_por_uf,
         "nomesUf": {uf: textos.NOMES_UF[uf] for uf in ufs},

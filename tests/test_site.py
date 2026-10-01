@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 
@@ -6,6 +7,7 @@ import pytest
 
 from colinha import site
 from colinha.site import textos
+from colinha.tse import ErroDados
 from tests.test_saida import gerar_tudo
 
 CSS = Path(__file__).parents[1] / "src" / "colinha" / "static" / "css" / "site.css"
@@ -133,7 +135,7 @@ def _secoes(html: str) -> list[str]:
 
 
 def test_todas_as_paginas_de_candidato_tem_as_mesmas_secoes(dist: Path):
-    paginas = [dist / "rr" / "1111", dist / "rr" / "22", dist / "br" / "10"]
+    paginas = [dist / "rr" / "1111", dist / "rr" / "222", dist / "br" / "10"]
     secoes = {tuple(_secoes((p / "index.html").read_text())) for p in paginas}
     assert secoes == {("t-trajetoria", "t-dados")}
 
@@ -184,7 +186,7 @@ def test_pagina_do_candidato(dist: Path):
 
 
 def test_candidato_sem_registro_mostra_a_janela(dist: Path):
-    html = (dist / "rr" / "22" / "index.html").read_text()
+    html = (dist / "rr" / "222" / "index.html").read_text()
     assert "Nenhuma candidatura encontrada de 2022 a 2022." in html
     assert "primeira candidatura" not in html.lower()
 
@@ -292,7 +294,12 @@ def test_nenhum_script_de_contagem(dist: Path):
     for arquivo in dist.rglob("*.html"):
         for src in re.findall(r'<script[^>]+src="([^"?]+)', arquivo.read_text()):
             scripts.add(src)
-    assert scripts <= {"/static/js/busca.js", "/static/js/colinha.js", "/static/js/compartilhar.js"}
+    assert scripts <= {
+        "/static/js/busca.js",
+        "/static/js/colinha.js",
+        "/static/js/compartilhar.js",
+        "/static/js/pdf-colinha.js",
+    }
 
 
 def test_registro_do_nginx_nao_grava_dado_identificavel():
@@ -311,3 +318,26 @@ def test_registro_do_nginx_nao_grava_dado_identificavel():
         assert proibido not in formato, proibido
     acessos = re.findall(r"^\s*access_log\s+([^;]+);", conf, re.M)
     assert acessos == ["/var/log/colinha/acessos-$dia.log anonimo"]
+
+
+def test_numero_fora_do_padrao_do_cargo_para_a_geracao(raiz: Path):
+    cfg = gerar_tudo(raiz)
+    arquivo = next((cfg.dir_processed / "RR" / "candidatos").glob("*.json"))
+    d = json.loads(arquivo.read_text())
+    d["numero"] = d["numero"] + "0"
+    arquivo.write_text(json.dumps(d))
+    with pytest.raises(ErroDados, match=rf"RR, {d['cargo']}: número '{d['numero']}'"):
+        site.gerar(cfg, log=lambda m: None)
+
+
+def test_pagina_da_colinha_tem_pdf_e_impressao(dist: Path):
+    html = (dist / "colinha" / "index.html").read_text()
+    assert 'id="baixar-pdf">Baixar colinha em PDF</button>' in html
+    assert 'id="imprimir"' in html
+    assert re.search(r'<script src="/static/js/pdf-colinha\.js\?v=[0-9a-f]+" defer>', html)
+    assert (dist / "static" / "js" / "pdf-colinha.js").exists()
+    config = json.loads(re.search(r"data-config='([^']+)'", html).group(1))
+    assert config["digitos"] == {"DEPUTADO FEDERAL": 4, "SENADOR": 3, "PRESIDENTE": 2}
+    assert config["endereco"] == "exemplo.invalid"
+    for rota in ["index.html", "rr/1111/index.html"]:
+        assert "pdf-colinha.js" not in (dist / rota).read_text(), rota

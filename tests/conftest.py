@@ -108,6 +108,7 @@ anos_historico = [2022]
 cargos = ["DEPUTADO FEDERAL", "SENADOR", "PRESIDENTE"]
 vagas_colinha = { "DEPUTADO FEDERAL" = 1, "SENADOR" = 2, "PRESIDENTE" = 1 }
 ordem_urna = ["DEPUTADO FEDERAL", "SENADOR", "PRESIDENTE"]
+digitos = { "DEPUTADO FEDERAL" = 4, "SENADOR" = 3, "PRESIDENTE" = 2 }
 
 [processamento]
 ufs = ["RR"]

@@ -21,6 +21,9 @@ vagas_colinha = { "DEPUTADO FEDERAL" = 1, "DEPUTADO ESTADUAL" = 1, "DEPUTADO DIS
 # Ordem de votação na urna (colinha e página da UF). Usada a de 2018, que também teve
 # duas vagas de senador. TODO: confirmar no TSE a ordem de 2026 (tarefa 3.3 da change 02).
 ordem_urna = ["DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL", "SENADOR", "GOVERNADOR", "PRESIDENTE"]
+# Dígitos do número na urna por cargo (quadradinhos da colinha de bolso). Em 2028:
+# PREFEITO = 2, VEREADOR = 5.
+digitos = { "DEPUTADO FEDERAL" = 4, "DEPUTADO ESTADUAL" = 5, "DEPUTADO DISTRITAL" = 5, "SENADOR" = 3, "GOVERNADOR" = 2, "PRESIDENTE" = 2 }
 
 [processamento]
 ufs = "todas"            # ou uma lista, ex.: ["RR", "SP"]

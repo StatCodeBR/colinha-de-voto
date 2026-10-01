@@ -7,9 +7,14 @@
 <noscript><p>A colinha precisa de JavaScript ligado no navegador. Sem ele, anote os números à mão a partir das páginas dos candidatos.</p></noscript>
 <p id="colinha-aviso" class="aviso" hidden></p>
 <div id="colinha" data-config='{{ config_colinha|tojson }}'></div>
-<p class="acoes-colinha" hidden id="colinha-acoes">
-  <button type="button" id="imprimir">Imprimir colinha</button>
-  <button type="button" id="apagar" class="botao-secundario">Apagar colinha</button>
-</p>
+<div class="acoes-colinha" hidden id="colinha-acoes">
+  <p>
+    <button type="button" id="baixar-pdf">Baixar colinha em PDF</button>
+    <button type="button" id="imprimir" class="botao-secundario">Imprimir colinha</button>
+    <button type="button" id="apagar" class="botao-secundario">Apagar colinha</button>
+  </p>
+  <p class="suave">A colinha sai pequena, no canto da folha, para recortar e levar no bolso. Imprima em tamanho real (100%). Sem impressora? Mande o PDF para quem tem ou leve a uma copiadora. Se o download não começar, abra o site no navegador do celular (Chrome ou Safari).</p>
+</div>
 <p class="suave">Sua colinha fica guardada só neste navegador. Nada é enviado para a StatCode nem para ninguém.</p>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pdf-colinha.js?v={{ versao }}" defer></script>{% endblock %}

@@ -206,7 +206,7 @@ def test_saidas_de_ponta_a_ponta(raiz: Path):
     cfg = gerar_tudo(raiz)
     out = cfg.dir_processed
     indice = json.loads((out / "RR" / "indice.json").read_text())
-    assert [c["id"] for c in indice["candidatos"]] == ["rr/1111", "rr/22"]  # ordem alfabética
+    assert [c["id"] for c in indice["candidatos"]] == ["rr/1111", "rr/222"]  # ordem alfabética
     assert json.loads((out / "BR" / "indice.json").read_text())["candidatos"][0]["id"] == "br/10"
     ana = json.loads((out / "RR" / "candidatos" / "1111.json").read_text())
     assert ana["trajetoria"][0]["resultado"] == "suplente"

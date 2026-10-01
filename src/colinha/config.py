@@ -38,6 +38,7 @@ class Eleicao:
     cargos: tuple[str, ...]
     vagas_colinha: dict[str, int]
     ordem_urna: tuple[str, ...]
+    digitos: dict[str, int]
 
     @property
     def anos(self) -> tuple[int, ...]:
@@ -143,14 +144,20 @@ def carregar(caminho: Path | None = None) -> Config:
         cargos=tuple(_chave(e, "eleicao", "cargos", list)),
         vagas_colinha=dict(_chave(e, "eleicao", "vagas_colinha", dict)),
         ordem_urna=tuple(_chave(e, "eleicao", "ordem_urna", list)),
+        digitos=dict(_chave(e, "eleicao", "digitos", dict)),
     )
-    if set(eleicao.ordem_urna) != set(eleicao.cargos) or set(eleicao.vagas_colinha) != set(
-        eleicao.cargos
+    cargos = set(eleicao.cargos)
+    if (
+        set(eleicao.ordem_urna) != cargos
+        or set(eleicao.vagas_colinha) != cargos
+        or set(eleicao.digitos) != cargos
     ):
         raise ErroConfig(
-            "config.toml: 'eleicao.ordem_urna' e 'eleicao.vagas_colinha' precisam ter os "
-            "mesmos cargos de 'eleicao.cargos'"
+            "config.toml: 'eleicao.ordem_urna', 'eleicao.vagas_colinha' e 'eleicao.digitos' "
+            "precisam ter os mesmos cargos de 'eleicao.cargos'"
         )
+    if not all(isinstance(n, int) and n > 0 for n in eleicao.digitos.values()):
+        raise ErroConfig("config.toml: 'eleicao.digitos' precisa de números inteiros positivos")
 
     pr = _secao(dados, "processamento")
     uf_dev = _chave(pr, "processamento", "uf_desenvolvimento", str)
